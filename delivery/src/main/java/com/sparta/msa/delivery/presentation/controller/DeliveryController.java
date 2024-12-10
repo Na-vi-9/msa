@@ -1,6 +1,6 @@
 package com.sparta.msa.delivery.presentation.controller;
 
-import com.sparta.msa.delivery.application.dto.DeliveryCreateResponse;
+import com.sparta.msa.delivery.application.dto.CreateDeliveryResponse;
 import com.sparta.msa.delivery.application.dto.DeliveryResponse;
 import com.sparta.msa.delivery.application.service.DeliveryService;
 import com.sparta.msa.delivery.common.dto.CommonResponse;
@@ -20,8 +20,8 @@ public class DeliveryController {
     private final DeliveryService deliveryService;
 
     @PostMapping
-    public CommonResponse<DeliveryCreateResponse> createDelivery(@Valid @RequestBody DeliveryCreateRequest request) {
-        return CommonResponse.ofSuccess(null);
+    public CommonResponse<CreateDeliveryResponse> createDelivery(@Valid @RequestBody DeliveryCreateRequest request) {
+        return CommonResponse.ofSuccess(deliveryService.createDelivery(request.toDto()));
     }
 
     @GetMapping
