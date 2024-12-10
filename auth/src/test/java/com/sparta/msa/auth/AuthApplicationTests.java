@@ -1,4 +1,4 @@
-package com.spart.msa.auth;
+package com.sparta.msa.auth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

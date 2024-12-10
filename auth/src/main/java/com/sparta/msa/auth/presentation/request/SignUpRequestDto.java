@@ -1,6 +1,6 @@
-package com.spart.msa.auth.dto;
+package com.sparta.msa.auth.presentation.request;
 
-import com.spart.msa.auth.entity.UserRoleEnum;
+import com.sparta.msa.auth.domain.model.UserRoleEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

@@ -1,12 +1,18 @@
-package com.spart.msa.auth;
+package com.sparta.msa.auth.application.service;
 
-import com.spart.msa.auth.dto.SignUpRequestDto;
-import com.spart.msa.auth.entity.UserRoleEnum;
-import com.spart.msa.auth.entity.User;
+import com.sparta.msa.auth.domain.repository.UserRepository;
+import com.sparta.msa.auth.presentation.exception.CustomException;
+import com.sparta.msa.auth.presentation.exception.ErrorCode;
+import com.sparta.msa.auth.presentation.request.SignUpRequestDto;
+import com.sparta.msa.auth.domain.model.UserRoleEnum;
+import com.sparta.msa.auth.domain.model.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,19 +45,44 @@ public class AuthService {
     public User signUp(SignUpRequestDto signUpRequestDto) {
         String encodedPassword = passwordEncoder.encode(signUpRequestDto.getPassword());
 
-        User user = new User();
-        user.setUsername(signUpRequestDto.getUsername());
-        user.setPassword(encodedPassword);
-        user.setName(signUpRequestDto.getUsername());
-        user.setEmail(signUpRequestDto.getEmail());
-        user.setSlackId(signUpRequestDto.getSlackId());
+        // 아이디 중복 확인
+        checkDuplicateUsername(signUpRequestDto.getUsername());
+        // 이메일 중복 확인
+        checkDuplicateEmail(signUpRequestDto.getEmail());
+        // slackId 중복 확인
+        checkDuplicateSlackId(signUpRequestDto.getSlackId());
 
-        if(signUpRequestDto.getRole() == null){
-            user.setRole(UserRoleEnum.NORMAL);
-        }
+        User user = User.builder()
+                .username(signUpRequestDto.getUsername())
+                .password(encodedPassword)
+                .name(signUpRequestDto.getUsername())
+                .email(signUpRequestDto.getEmail())
+                .slackId(signUpRequestDto.getSlackId())
+                .role(signUpRequestDto.getRole())
+                .createdBy(signUpRequestDto.getUsername())
+                .build();
+
         return userRepository.save(user);
     }
 
+
+    private void checkDuplicateUsername(String username) {
+        if(userRepository.existsByUsername(username)){
+            throw new CustomException(ErrorCode.USERNAME_ALREADY_EXISTS, ErrorCode.USERNAME_ALREADY_EXISTS.getDescription());
+        }
+    }
+
+    private void checkDuplicateEmail(String email) {
+        if(userRepository.existsByEmail(email)){
+            throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS, ErrorCode.EMAIL_ALREADY_EXISTS.getDescription());
+        }
+    }
+
+    private void checkDuplicateSlackId(@NotNull(message = "슬랙 아이디는 필수입니다.") String slackId) {
+        if(userRepository.existsBySlackId(slackId)){
+            throw new CustomException(ErrorCode.SLACKID_ALREADY_EXISTS, ErrorCode.SLACKID_ALREADY_EXISTS.getDescription());
+        }
+    }
 
     public String createAccessToken(String username, String password) {
         return Jwts.builder()

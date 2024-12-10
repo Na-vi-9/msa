@@ -1,4 +1,4 @@
-package com.spart.msa.auth.dto;
+package com.sparta.msa.auth.presentation.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

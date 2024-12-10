@@ -1,11 +1,12 @@
-package com.spart.msa.auth;
+package com.sparta.msa.auth.presentation.controller;
 
 
-import com.spart.msa.auth.dto.SignInRequestDto;
-import com.spart.msa.auth.dto.AuthResponseDto;
-import com.spart.msa.auth.dto.CommonResponse;
-import com.spart.msa.auth.dto.SignUpRequestDto;
-import com.spart.msa.auth.entity.User;
+import com.sparta.msa.auth.application.service.AuthService;
+import com.sparta.msa.auth.presentation.request.SignInRequestDto;
+import com.sparta.msa.auth.presentation.response.AuthResponseDto;
+import com.sparta.msa.auth.presentation.response.CommonResponse;
+import com.sparta.msa.auth.presentation.request.SignUpRequestDto;
+import com.sparta.msa.auth.domain.model.User;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,11 @@ public class AuthController {
 
     private final AuthService authService;
 
+//    @PostMapping("/signUp")
+//    public CommonResponse<User> signUp(@Valid @RequestBody SignUpRequestDto signupRequestDto) {
+//        User createdUser = authService.signUp(signupRequestDto);
+//        return CommonResponse.ofSuccess(createdUser);
+//    }
     @PostMapping("/signUp")
     public CommonResponse<User> signUp(@Valid @RequestBody SignUpRequestDto signupRequestDto) {
         User createdUser = authService.signUp(signupRequestDto);
