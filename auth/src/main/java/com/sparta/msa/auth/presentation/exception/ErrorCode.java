@@ -10,7 +10,9 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"),
     USERNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "사용자 아이디가 이미 존재 합니다."),
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이메일이 이미 존재 합니다."),
-    SLACKID_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "슬랙 아이디가 이미 존재합니다.");
+    SLACKID_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "슬랙 아이디가 이미 존재합니다."),
+    NOT_FOUND_USERNAME(HttpStatus.NOT_FOUND, "아이디를 찾을 수 없습니다."),
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
 
     private final HttpStatus status;
     private final String description;

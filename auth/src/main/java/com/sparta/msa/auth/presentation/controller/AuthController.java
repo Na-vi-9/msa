@@ -19,11 +19,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-//    @PostMapping("/signUp")
-//    public CommonResponse<User> signUp(@Valid @RequestBody SignUpRequestDto signupRequestDto) {
-//        User createdUser = authService.signUp(signupRequestDto);
-//        return CommonResponse.ofSuccess(createdUser);
-//    }
     @PostMapping("/signUp")
     public CommonResponse<User> signUp(@Valid @RequestBody SignUpRequestDto signupRequestDto) {
         User createdUser = authService.signUp(signupRequestDto);

@@ -10,9 +10,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -78,16 +75,17 @@ public class AuthService {
         }
     }
 
-    private void checkDuplicateSlackId(@NotNull(message = "슬랙 아이디는 필수입니다.") String slackId) {
+    private void checkDuplicateSlackId(String slackId) {
         if(userRepository.existsBySlackId(slackId)){
             throw new CustomException(ErrorCode.SLACKID_ALREADY_EXISTS, ErrorCode.SLACKID_ALREADY_EXISTS.getDescription());
         }
     }
 
-    public String createAccessToken(String username, String password) {
+    public String createAccessToken(String username, String password, UserRoleEnum userRoleEnum) {
         return Jwts.builder()
                 .claim("username", username)
                 .claim("password", password)
+                .claim("role", userRoleEnum)
                 .issuer(issuer)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessExpiration))
@@ -97,11 +95,12 @@ public class AuthService {
 
     public String signIn(String username, String password) {
         User user = userRepository.findByusername(username)
-                .orElseThrow(()-> new IllegalArgumentException("Invalid username or password."));
+                .orElseThrow(()->
+                        new CustomException(ErrorCode.NOT_FOUND_USERNAME, ErrorCode.NOT_FOUND_USERNAME.getDescription()));
 
         if(!passwordEncoder.matches(password, user.getPassword())){
-            throw new IllegalArgumentException("Invalid password.");
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH, ErrorCode.PASSWORD_MISMATCH.getDescription());
         }
-        return createAccessToken(user.getUsername(), user.getRole().toString());
+        return createAccessToken(user.getUsername(), user.getPassword(), user.getRole());
     }
 }
