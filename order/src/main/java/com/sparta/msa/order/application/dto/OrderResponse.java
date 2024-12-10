@@ -1,4 +1,4 @@
-package com.sparta.msa.order.dto;
+package com.sparta.msa.order.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

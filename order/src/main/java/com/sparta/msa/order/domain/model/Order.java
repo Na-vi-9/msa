@@ -1,6 +1,6 @@
-package com.sparta.msa.order.entity;
+package com.sparta.msa.order.domain.model;
 
-import com.sparta.msa.order.dto.CreateOrderRequest;
+import com.sparta.msa.order.application.dto.CreateOrderRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

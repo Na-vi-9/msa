@@ -1,4 +1,4 @@
-package com.sparta.msa.order.config;
+package com.sparta.msa.order.infrastructure.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
