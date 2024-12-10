@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public class DeliveryCreateRequest {
+public class CreateDeliveryRequest {
     @NotNull
     private UUID orderUUID;
 

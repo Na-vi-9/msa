@@ -4,8 +4,8 @@ import com.sparta.msa.delivery.application.dto.CreateDeliveryResponse;
 import com.sparta.msa.delivery.application.dto.DeliveryResponse;
 import com.sparta.msa.delivery.application.service.DeliveryService;
 import com.sparta.msa.delivery.common.dto.CommonResponse;
-import com.sparta.msa.delivery.presentation.request.DeliveryCreateRequest;
-import com.sparta.msa.delivery.presentation.request.DeliveryUpdateRequest;
+import com.sparta.msa.delivery.presentation.request.CreateDeliveryRequest;
+import com.sparta.msa.delivery.presentation.request.UpdateDeliveryRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +20,7 @@ public class DeliveryController {
     private final DeliveryService deliveryService;
 
     @PostMapping
-    public CommonResponse<CreateDeliveryResponse> createDelivery(@Valid @RequestBody DeliveryCreateRequest request) {
+    public CommonResponse<CreateDeliveryResponse> createDelivery(@Valid @RequestBody CreateDeliveryRequest request) {
         return CommonResponse.ofSuccess(deliveryService.createDelivery(request.toDto()));
     }
 
@@ -38,7 +38,7 @@ public class DeliveryController {
 
     @PutMapping("/{DeliveryUUID}")
     public CommonResponse<DeliveryResponse> updateDelivery(@PathVariable String DeliveryUUID,
-                                                           @Valid @RequestBody DeliveryUpdateRequest request) {
+                                                           @Valid @RequestBody UpdateDeliveryRequest request) {
         return CommonResponse.ofSuccess(null);
     }
 
