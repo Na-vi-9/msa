@@ -31,6 +31,8 @@ public class User extends BaseEntity{
 
     private UserRoleEnum role;
 
+    private boolean isDeleted;
+
 
     @Builder
     public User(String username, String password, String name, String email, String slackId, UserRoleEnum role, String createdBy) {
@@ -40,6 +42,7 @@ public class User extends BaseEntity{
         this.email = email;
         this.slackId = slackId;
         this.role = role;
+        this.isDeleted = false;
         super.setCreatedBy(createdBy);
     }
 }
