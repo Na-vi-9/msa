@@ -1,6 +1,6 @@
-package com.sparta.msa.order.repository;
+package com.sparta.msa.order.infrastructure.repository;
 
-import com.sparta.msa.order.entity.Order;
+import com.sparta.msa.order.domain.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
