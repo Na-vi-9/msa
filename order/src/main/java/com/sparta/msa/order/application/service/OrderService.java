@@ -1,12 +1,12 @@
-package com.sparta.msa.order.service;
+package com.sparta.msa.order.application.service;
 
-import com.sparta.msa.order.dto.CreateOrderRequest;
-import com.sparta.msa.order.dto.OrderResponse;
-import com.sparta.msa.order.dto.UpdateOrderRequest;
-import com.sparta.msa.order.entity.Order;
+import com.sparta.msa.order.application.dto.CreateOrderRequest;
+import com.sparta.msa.order.application.dto.OrderResponse;
+import com.sparta.msa.order.application.dto.UpdateOrderRequest;
+import com.sparta.msa.order.domain.model.Order;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
-import com.sparta.msa.order.repository.OrderRepository;
+import com.sparta.msa.order.infrastructure.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
