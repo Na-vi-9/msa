@@ -7,6 +7,6 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public class OrderResponse {
-    private UUID orderUUID;
-    private UUID deliveryUUID;
+    private UUID orderID;
+    private UUID deliveryID;
 }
