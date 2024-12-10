@@ -2,10 +2,12 @@
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
-    <file type="web" url="file://$PROJECT_DIR$/com.spart.msa.auth" />
-    <file type="web" url="file://$PROJECT_DIR$/com.spart.msa.user" />
     <file type="web" url="file://$PROJECT_DIR$/gateway" />
+    <file type="web" url="file://$PROJECT_DIR$/order" />
     <file type="web" url="file://$PROJECT_DIR$/server" />
+  </component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="66bd29e2-2d8f-4dfe-9a3b-9b759fbb549c" />
   </component>
   <component name="ProjectRootManager">
     <output url="file://$PROJECT_DIR$/out" />
