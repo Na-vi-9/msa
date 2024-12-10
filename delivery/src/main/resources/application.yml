@@ -2,6 +2,19 @@ spring:
   application:
     name: delivery
 
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
 server:
   port: 19095
 
@@ -9,3 +22,9 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:19090/eureka/
+
+
+logging:
+  level:
+    root: info
+    org.springframework: debug
