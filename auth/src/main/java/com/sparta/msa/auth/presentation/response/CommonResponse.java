@@ -13,6 +13,9 @@ public class CommonResponse<T> {
         this.data = data;
         this.message = message;
     }
+    public static CommonResponse ofError(ErrorCode code) {
+        return new CommonResponse<>(null, code.getDescription());
+    }
 
     public static <T> CommonResponse<T> ofSuccess(T data) {
         return new CommonResponse<>(data, "SUCCESS");

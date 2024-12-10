@@ -34,16 +34,4 @@ public abstract class BaseEntity {
     @LastModifiedBy
     @Column(name = "updated_by", length = 10)
     private String updatedBy;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
-    @Column(name = "deleted_by", length = 10)
-    private Long deletedBy;
-
-    public void markAsDeleted(Long deletedBy) {
-        this.deletedAt = LocalDateTime.now();
-        this.deletedBy = deletedBy;
-    }
-
 }

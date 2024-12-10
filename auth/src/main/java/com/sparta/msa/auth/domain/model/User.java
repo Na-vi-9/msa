@@ -2,6 +2,9 @@ package com.sparta.msa.auth.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
+
+import java.time.LocalDateTime;
 
 
 @NoArgsConstructor
@@ -29,7 +32,14 @@ public class User extends BaseEntity{
     @Column(nullable = false)
     private String slackId;
 
+    @Column(nullable = false)
     private UserRoleEnum role;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime deletedAt;
+
+    @Length(max = 10)
+    private String deletedBy;
 
     private boolean isDeleted;
 
