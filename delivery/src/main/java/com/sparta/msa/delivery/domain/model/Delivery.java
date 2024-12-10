@@ -14,21 +14,17 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Delivery extends BaseEntity{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID uuid;
 
-    @Column(name = "uuid", unique = true, nullable = false, updatable = false)
-    @Builder.Default
-    private UUID uuid = UUID.randomUUID();
+    @Column(name = "order_uuid", nullable = false)
+    private UUID orderUUID;
 
-    @Column(name = "order_id", nullable = false)
-    private Long orderId;
+    @Column(name = "departure_hub_uuid", nullable = false)
+    private UUID departureHubUUID;
 
-    @Column(name = "departure_hub_id", nullable = false)
-    private Long departureHubId;
-
-    @Column(name = "arrival_hub_id", nullable = false)
-    private Long arrivalHubId;
+    @Column(name = "arrival_hub_uuid", nullable = false)
+    private UUID arrivalHubUUID;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -54,18 +50,18 @@ public class Delivery extends BaseEntity{
     @Column(name = "deleted_by", length = 10)
     private String deletedBy;
 
-    public static Delivery create(Long orderId,
+    public static Delivery create(UUID orderUUID,
                                   DeliveryStatus status,
-                                  Long departureHubId,
-                                  Long arrivalHubId,
+                                  UUID departureHubUUID,
+                                  UUID arrivalHubUUID,
                                   String deliveryAddress,
                                   String receiverName,
                                   String receiverSlackId) {
         return Delivery.builder()
-                .orderId(orderId)
+                .orderUUID(orderUUID)
                 .status(status)
-                .departureHubId(departureHubId)
-                .arrivalHubId(arrivalHubId)
+                .departureHubUUID(departureHubUUID)
+                .arrivalHubUUID(arrivalHubUUID)
                 .deliveryAddress(deliveryAddress)
                 .receiverName(receiverName)
                 .receiverSlackId(receiverSlackId)

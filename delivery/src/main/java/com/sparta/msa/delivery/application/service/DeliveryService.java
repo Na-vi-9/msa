@@ -16,11 +16,8 @@ public class DeliveryService {
 
     @Transactional
     public CreateDeliveryResponse createDelivery(CreateDeliveryDto dto) {
-        Long orderId = 1L;
-        Long departureHubId = 1L;
-        Long arrivalHubId = 1L;
 
-        Delivery delivery = Delivery.create(orderId, dto.getStatus(), departureHubId, arrivalHubId, dto.getDeliveryAddress(), dto.getReceiverName(), dto.getReceiverSlackId());
+        Delivery delivery = Delivery.create(dto.getOrderUUID(), dto.getStatus(), dto.getDepartureHubUUID(), dto.getArrivalHubUUID(), dto.getDeliveryAddress(), dto.getReceiverName(), dto.getReceiverSlackId());
         return CreateDeliveryResponse.of(deliveryRepository.save(delivery));
 
     }
