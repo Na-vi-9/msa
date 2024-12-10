@@ -1,10 +1,10 @@
-package com.sparta.msa.order.dto;
+package com.sparta.msa.order.application.dto;
 
 import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class CreateOrderRequest {
+public class UpdateOrderRequest {
     private UUID supplierCompanyUUID;
     private UUID receiverCompanyUUID;
     private UUID productUUID;
