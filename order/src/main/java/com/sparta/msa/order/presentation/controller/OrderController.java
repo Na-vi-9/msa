@@ -1,8 +1,7 @@
 package com.sparta.msa.order.presentation.controller;
 
-import com.sparta.msa.order.application.dto.CreateOrderRequest;
+import com.sparta.msa.order.application.dto.OrderRequest;
 import com.sparta.msa.order.application.dto.OrderResponse;
-import com.sparta.msa.order.application.dto.UpdateOrderRequest;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
 import com.sparta.msa.order.application.service.OrderService;
@@ -23,7 +22,7 @@ public class OrderController {
 
     // 주문 생성
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request) {
         try {
             // 검증 로직: 수량이 0 이하인 경우 에러
             if (request.getQuantity() <= 0) {
@@ -71,7 +70,7 @@ public class OrderController {
     @PutMapping("/{orderUUID}")
     public ResponseEntity<OrderResponse> updateOrder(
             @PathVariable UUID orderUUID,
-            @RequestBody UpdateOrderRequest request) {
+            @RequestBody OrderRequest request) {
         try {
             // 검증 로직: 수량이 0 이하인 경우 에러
             if (request.getQuantity() <= 0) {
