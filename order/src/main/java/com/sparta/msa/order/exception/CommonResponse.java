@@ -15,8 +15,8 @@ public record CommonResponse<T>(
     }
 
 
-//    public static CommonResponse<T> ofSuccess(T data) {
-//        return new CommonResponse<>(data, "SUCCESS");
-//    }
+    public static <T> CommonResponse<T> ofSuccess(T data) {
+        return new CommonResponse<>(data, "SUCCESS");
+    }
 
 }
