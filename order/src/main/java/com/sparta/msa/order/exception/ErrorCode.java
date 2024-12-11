@@ -21,6 +21,7 @@ public enum ErrorCode {
     ORDER_CREATION_FAILED(HttpStatus.BAD_REQUEST, "주문 생성에 실패했습니다. (사유: %s)"),
     INVALID_ORDER_REQUEST(HttpStatus.BAD_REQUEST, "유효하지 않은 주문 요청입니다."),
 
+
     // 상품 관련 예외
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다. (상품 ID: %s)"),
     PRODUCT_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "상품의 재고가 부족합니다. (상품 ID: %s)"),
