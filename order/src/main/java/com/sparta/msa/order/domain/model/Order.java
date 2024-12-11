@@ -41,6 +41,9 @@ public class Order {
     @Builder.Default
     private Boolean isDeleted = false;
 
+    @Column(name = "is_canceled", nullable = false)
+    private boolean isCanceled = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -87,6 +90,12 @@ public class Order {
         this.productUUID = productUUID;
         this.quantity = quantity;
         this.memo = memo;
+        this.updatedBy = updatedBy;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void cancel(String updatedBy) {
+        this.isCanceled = true;
         this.updatedBy = updatedBy;
         this.updatedAt = LocalDateTime.now();
     }
