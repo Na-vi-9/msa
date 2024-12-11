@@ -5,6 +5,7 @@ import com.sparta.msa.order.application.dto.OrderListResponse;
 import com.sparta.msa.order.application.dto.OrderRequest;
 import com.sparta.msa.order.application.dto.OrderResponse;
 import com.sparta.msa.order.application.service.OrderService;
+import com.sparta.msa.order.exception.CommonResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -50,6 +51,13 @@ public class OrderController {
             @PathVariable UUID orderUUID,
             @Valid @RequestBody OrderRequest request) {
         OrderDetailResponse response = orderService.updateOrder(orderUUID, request);
+        return ResponseEntity.ok(response);
+    }
+
+    // 주문 취소
+    @PutMapping("/{orderUUID}/cancel")
+    public ResponseEntity<CommonResponse<OrderDetailResponse>> cancelOrder(@PathVariable UUID orderUUID) {
+        CommonResponse<OrderDetailResponse> response = orderService.cancelOrder(orderUUID);
         return ResponseEntity.ok(response);
     }
 
