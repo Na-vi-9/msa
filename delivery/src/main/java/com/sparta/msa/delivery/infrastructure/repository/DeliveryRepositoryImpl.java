@@ -33,8 +33,7 @@ public class DeliveryRepositoryImpl implements DeliveryRepository {
         JPAQuery<Delivery> query = queryFactory
                 .select(delivery)
                 .from(delivery)
-                .where(delivery.isDeleted.eq(false))
-                .where(delivery.uuid.eq(uuid));
+                .where(delivery.isDeleted.eq(false).and(delivery.uuid.eq(uuid)));
 
         return Optional.ofNullable(query.fetchOne());
     }
@@ -46,6 +45,5 @@ public class DeliveryRepositoryImpl implements DeliveryRepository {
         booleanBuilder.and(delivery.isDeleted.eq(false));
 
         return deliveryJpaRepository.findAll(booleanBuilder, pageable);
-
     }
 }
