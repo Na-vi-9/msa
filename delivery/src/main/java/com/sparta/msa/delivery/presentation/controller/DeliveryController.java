@@ -39,8 +39,8 @@ public class DeliveryController {
     }
 
     @GetMapping("/{DeliveryUUID}")
-    public CommonResponse<DeliveryResponse> findDeliveryByUUID(@PathVariable String DeliveryUUID) {
-        return CommonResponse.ofSuccess(null);
+    public CommonResponse<DeliveryResponse> findDeliveryByUUID(@PathVariable UUID DeliveryUUID) {
+        return CommonResponse.ofSuccess(deliveryService.findDeliveryByUUID(DeliveryUUID));
     }
 
     @PutMapping("/{DeliveryUUID}")

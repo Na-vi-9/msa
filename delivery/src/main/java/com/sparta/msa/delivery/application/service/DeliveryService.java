@@ -51,10 +51,18 @@ public class DeliveryService {
         Page<Delivery> deliveryPage = deliveryRepository.searchDeliveriesIsDeletedFalse(predicate, pageable);
         return new PagedModel<>(
                 new PageImpl<>(
-                        deliveryPage.getContent().stream().map(DeliveryResponse::of).toList(),
+                        deliveryPage.getContent().stream()
+                                .map(DeliveryResponse::of)
+                                .toList(),
                         deliveryPage.getPageable(),
                         deliveryPage.getTotalElements()
                 )
         );
+    }
+
+    public DeliveryResponse findDeliveryByUUID(UUID deliveryUUID) {
+        return deliveryRepository.findByUuidAndIsDeletedFalse(deliveryUUID)
+                .map(DeliveryResponse::of)
+                .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
     }
 }
