@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class CommonResponse<T> {
-
     private final T data;
     private final String message;
 
@@ -15,6 +14,10 @@ public class CommonResponse<T> {
 
     public static <T> CommonResponse<T> ofSuccess(T data) {
         return new CommonResponse<>(data, "SUCCESS");
+    }
+
+    public static CommonResponse<Void> ofError(ErrorCode code) {
+        return new CommonResponse<>(null, code.getDescription());
     }
 
     public static CommonResponse<Void> ofError(String message) {
