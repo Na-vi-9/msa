@@ -5,6 +5,7 @@ import com.sparta.msa.order.application.dto.OrderListResponse;
 import com.sparta.msa.order.application.dto.OrderRequest;
 import com.sparta.msa.order.application.dto.OrderResponse;
 import com.sparta.msa.order.domain.model.Order;
+import com.sparta.msa.order.exception.CommonResponse;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
 import com.sparta.msa.order.infrastructure.repository.OrderRepository;
@@ -39,7 +40,7 @@ public class OrderService {
             return new OrderResponse(order.getUuid(), order.getDeliveryUUID());
         } catch (Exception e) {
             e.printStackTrace();
-            throw new CustomException(ErrorCode.ORDER_CREATION_FAILED, "DB 저장 중 문제가 발생했습니다.");
+            throw new CustomException(ErrorCode.ORDER_CREATION_FAILED);
         }
     }
 
@@ -49,7 +50,7 @@ public class OrderService {
         Page<Order> orders = orderRepository.findAllWithCondition(condition, null, pageable);
 
         if (orders.isEmpty()) {
-            throw new CustomException(ErrorCode.NOT_FOUND, "주문 목록이 비어 있습니다.");
+            throw new CustomException(ErrorCode.NOT_FOUND);
         }
 
         return orders.map(order -> OrderListResponse.builder()
@@ -103,6 +104,31 @@ public class OrderService {
                 .memo(updatedOrder.getMemo())
                 .deliveryUUID(updatedOrder.getDeliveryUUID())
                 .build();
+    }
+
+    // 주문 취소
+    @Transactional
+    public CommonResponse<OrderDetailResponse> cancelOrder(UUID orderUUID) {
+        Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
+
+        if (order.isCanceled()) {
+            throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
+        }
+
+        order.cancel("system");
+        Order canceledOrder = orderRepository.save(order);
+
+        OrderDetailResponse response = OrderDetailResponse.builder()
+                .supplierCompanyUUID(canceledOrder.getSupplierCompanyUUID())
+                .receiverCompanyUUID(canceledOrder.getReceiverCompanyUUID())
+                .productUUID(canceledOrder.getProductUUID())
+                .quantity(canceledOrder.getQuantity())
+                .memo(canceledOrder.getMemo())
+                .deliveryUUID(canceledOrder.getDeliveryUUID())
+                .build();
+
+        return CommonResponse.ofSuccess(response);
     }
 
     // 주문 삭제
