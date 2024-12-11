@@ -16,8 +16,7 @@ public class DeliveryResponse {
     private UUID arrivalHubUUID;
     private DeliveryStatus status;
     private String deliveryAddress;
-    private String receiverName;
-    private String receiverSlackId;
+    private String username;
 
     public static DeliveryResponse of(Delivery delivery) {
         return DeliveryResponse.builder()
@@ -27,8 +26,7 @@ public class DeliveryResponse {
                 .arrivalHubUUID(delivery.getArrivalHubUUID())
                 .status(delivery.getStatus())
                 .deliveryAddress(delivery.getDeliveryAddress())
-                .receiverName(delivery.getReceiverName())
-                .receiverSlackId(delivery.getReceiverSlackId())
+                .username(delivery.getUsername())
                 .build();
     }
 }
