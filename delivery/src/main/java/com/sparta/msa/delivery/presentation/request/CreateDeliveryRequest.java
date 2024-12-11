@@ -28,16 +28,11 @@ public class CreateDeliveryRequest {
     private String deliveryAddress;
 
     @NotNull
-    @Size(max = 50)
-    private String receiverName;
-
-    @NotNull
-    @Size(max = 20)
-    private String receiverSlackId;
+    @Size(max = 10)
+    private String username;
 
     public CreateDeliveryDto toDto() {
         return CreateDeliveryDto.create(this.orderUUID, this.status, this.departureHubUUID,
-                                    this.arrivalHubUUID, this.deliveryAddress, this.receiverName,
-                                    this.receiverSlackId);
+                                    this.arrivalHubUUID, this.deliveryAddress, this.username);
     }
 }

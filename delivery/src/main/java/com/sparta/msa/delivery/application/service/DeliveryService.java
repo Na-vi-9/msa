@@ -23,9 +23,9 @@ public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
 
     @Transactional
-    public CreateDeliveryResponse createDelivery(CreateDeliveryDto dto) {
+    public CreateDeliveryResponse createDelivery(CreateDeliveryDto request) {
 
-        Delivery delivery = Delivery.create(dto.getOrderUUID(), dto.getStatus(), dto.getDepartureHubUUID(), dto.getArrivalHubUUID(), dto.getDeliveryAddress(), dto.getReceiverName(), dto.getReceiverSlackId());
+        Delivery delivery = Delivery.create(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(), request.getArrivalHubUUID(), request.getDeliveryAddress(), request.getUsername());
         return CreateDeliveryResponse.of(deliveryRepository.save(delivery));
 
     }
@@ -34,7 +34,7 @@ public class DeliveryService {
     public UpdateDeliveryResponse updateDelivery(UUID deliveryUUID, UpdateDeliveryDto request) {
 
         return deliveryRepository.findByUuidAndIsDeletedFalse(deliveryUUID).map(delivery -> {
-            delivery.update(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(), request.getArrivalHubUUID(), request.getDeliveryAddress(), request.getReceiverName(), request.getReceiverSlackId());
+            delivery.update(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(), request.getArrivalHubUUID(), request.getDeliveryAddress(), request.getUsername());
             return UpdateDeliveryResponse.of(delivery);
         }).orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
 

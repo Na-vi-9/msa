@@ -33,11 +33,8 @@ public class Delivery extends BaseEntity{
     @Column(name = "delivery_address", nullable = false)
     private String deliveryAddress;
 
-    @Column(name = "receiver_name", nullable = false, length = 50)
-    private String receiverName;
-
-    @Column(name = "receiver_slack_id", nullable = false, length = 20)
-    private String receiverSlackId;
+    @Column(name = "username", nullable = false, length = 10)
+    private String username;
 
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default
@@ -55,16 +52,14 @@ public class Delivery extends BaseEntity{
                                   UUID departureHubUUID,
                                   UUID arrivalHubUUID,
                                   String deliveryAddress,
-                                  String receiverName,
-                                  String receiverSlackId) {
+                                  String username) {
         return Delivery.builder()
                 .orderUUID(orderUUID)
                 .status(status)
                 .departureHubUUID(departureHubUUID)
                 .arrivalHubUUID(arrivalHubUUID)
                 .deliveryAddress(deliveryAddress)
-                .receiverName(receiverName)
-                .receiverSlackId(receiverSlackId)
+                .username(username)
                 .build();
     }
 
@@ -73,15 +68,13 @@ public class Delivery extends BaseEntity{
                               UUID departureHubUUID,
                               UUID arrivalHubUUID,
                               String deliveryAddress,
-                              String receiverName,
-                              String receiverSlackId) {
+                              String username) {
         this.orderUUID = orderUUID;
         this.status = status;
         this.departureHubUUID = departureHubUUID;
         this.arrivalHubUUID = arrivalHubUUID;
         this.deliveryAddress = deliveryAddress;
-        this.receiverName = receiverName;
-        this.receiverSlackId = receiverSlackId;
+        this.username = username;
     }
 
     public void delete(String deletedBy) {
