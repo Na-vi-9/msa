@@ -1,6 +1,7 @@
 package com.sparta.msa.delivery.presentation.controller;
 
 import com.sparta.msa.delivery.application.dto.CreateDeliveryResponse;
+import com.sparta.msa.delivery.application.dto.DeliveryResponse;
 import com.sparta.msa.delivery.application.dto.UpdateDeliveryResponse;
 import com.sparta.msa.delivery.application.service.DeliveryService;
 import com.sparta.msa.delivery.common.dto.CommonResponse;
@@ -27,14 +28,14 @@ public class DeliveryController {
     }
 
     @GetMapping
-    public CommonResponse<Page<UpdateDeliveryResponse>> findDeliveries(@PageableDefault(sort = {"created_at", "updated_at"}) Pageable pageable,
-                                                                       @RequestParam String condition,
-                                                                       @RequestParam String keyword) {
+    public CommonResponse<Page<DeliveryResponse>> findDeliveries(@PageableDefault(sort = {"created_at", "updated_at"}) Pageable pageable,
+                                                                 @RequestParam String condition,
+                                                                 @RequestParam String keyword) {
         return CommonResponse.ofSuccess(null);
     }
 
     @GetMapping("/{DeliveryUUID}")
-    public CommonResponse<UpdateDeliveryResponse> findDeliveryByUUID(@PathVariable UUID DeliveryUUID) {
+    public CommonResponse<DeliveryResponse> findDeliveryByUUID(@PathVariable String DeliveryUUID) {
         return CommonResponse.ofSuccess(null);
     }
 
@@ -47,6 +48,9 @@ public class DeliveryController {
 
     @DeleteMapping("/{DeliveryUUID}")
     public CommonResponse<?> deleteDelivery(@PathVariable UUID DeliveryUUID) {
+        String deletedBy = "tmp";
+        deliveryService.deleteDelivery(DeliveryUUID, deletedBy);
+
         return CommonResponse.ofSuccess(null);
     }
 }
