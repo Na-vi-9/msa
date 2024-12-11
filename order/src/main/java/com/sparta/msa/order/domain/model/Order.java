@@ -20,16 +20,16 @@ public class Order {
     private UUID uuid;
 
     @Column(name = "supplier_company_id", nullable = false)
-    private UUID supplierCompanyId;
+    private UUID supplierCompanyUUID;
 
     @Column(name = "receiver_company_id", nullable = false)
-    private UUID receiverCompanyId;
+    private UUID receiverCompanyUUID;
 
     @Column(name = "product_id", nullable = false)
-    private UUID productId;
+    private UUID productUUID;
 
     @Column(name = "delivery_id", nullable = false)
-    private UUID deliveryId;
+    private UUID deliveryUUID;
 
     @Column(nullable = false)
     private Integer quantity;
@@ -63,10 +63,10 @@ public class Order {
     public static Order createOrder(OrderRequest request, UUID supplierCompanyId, UUID receiverCompanyId, UUID productId, UUID deliveryId) {
         return Order.builder()
                 .uuid(UUID.randomUUID())
-                .supplierCompanyId(supplierCompanyId)
-                .receiverCompanyId(receiverCompanyId)
-                .productId(productId)
-                .deliveryId(deliveryId)
+                .supplierCompanyUUID(supplierCompanyId)
+                .receiverCompanyUUID(receiverCompanyId)
+                .productUUID(productId)
+                .deliveryUUID(deliveryId)
                 .quantity(request.getQuantity())
                 .memo(request.getMemo())
                 .createdAt(LocalDateTime.now())
@@ -81,10 +81,10 @@ public class Order {
         this.deletedBy = deletedBy;
     }
 
-    public void updateOrder(UUID supplierCompanyId, UUID receiverCompanyId, UUID productId, Integer quantity, String memo, String updatedBy) {
-        this.supplierCompanyId = supplierCompanyId;
-        this.receiverCompanyId = receiverCompanyId;
-        this.productId = productId;
+    public void updateOrder(UUID supplierCompanyUUID, UUID receiverCompanyUUID, UUID productUUID, Integer quantity, String memo, String updatedBy) {
+        this.supplierCompanyUUID = supplierCompanyUUID;
+        this.receiverCompanyUUID = receiverCompanyUUID;
+        this.productUUID = productUUID;
         this.quantity = quantity;
         this.memo = memo;
         this.updatedBy = updatedBy;
