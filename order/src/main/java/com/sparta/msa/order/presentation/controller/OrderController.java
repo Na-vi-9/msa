@@ -1,7 +1,11 @@
 package com.sparta.msa.order.presentation.controller;
 
-import com.sparta.msa.order.application.dto.*;
+import com.sparta.msa.order.application.dto.OrderDetailResponse;
+import com.sparta.msa.order.application.dto.OrderListResponse;
+import com.sparta.msa.order.application.dto.OrderRequest;
+import com.sparta.msa.order.application.dto.OrderResponse;
 import com.sparta.msa.order.application.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,10 +23,7 @@ public class OrderController {
 
     // 주문 생성
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request) {
-        if (request.getQuantity() <= 0) {
-            throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
-        }
+    public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest request) {
         OrderResponse response = orderService.createOrder(request);
         return ResponseEntity.ok(response);
     }
@@ -45,13 +46,10 @@ public class OrderController {
 
     // 주문 수정
     @PutMapping("/{orderUUID}")
-    public ResponseEntity<OrderResponse> updateOrder(
+    public ResponseEntity<OrderDetailResponse> updateOrder(
             @PathVariable UUID orderUUID,
-            @RequestBody OrderRequest request) {
-        if (request.getQuantity() <= 0) {
-            throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
-        }
-        OrderResponse response = orderService.updateOrder(orderUUID, request);
+            @Valid @RequestBody OrderRequest request) {
+        OrderDetailResponse response = orderService.updateOrder(orderUUID, request);
         return ResponseEntity.ok(response);
     }
 
