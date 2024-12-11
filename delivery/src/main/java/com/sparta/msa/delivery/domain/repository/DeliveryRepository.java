@@ -8,5 +8,5 @@ import java.util.UUID;
 public interface DeliveryRepository {
     Delivery save(Delivery delivery);
 
-    Optional<Delivery> findByUuid(UUID uuid);
+    Optional<Delivery> findByUuidAndIsDeletedFalse(UUID uuid);
 }
