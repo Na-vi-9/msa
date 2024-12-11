@@ -26,4 +26,8 @@ public class UserController {
         return userService.signUp(userSignUpRequestDto);
     }
 
+    @PostMapping("/signIn")
+    public CommonResponse<UserSignInResponseDto> signIn(@Valid @RequestBody UserSignInRequestDto userSignInRequestDto) {
+        return userService.signIn(userSignInRequestDto);
+    }
 }

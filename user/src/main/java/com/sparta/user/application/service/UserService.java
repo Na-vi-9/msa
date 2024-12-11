@@ -5,9 +5,11 @@ import com.sparta.user.domain.repository.UserRepository;
 import com.sparta.user.infrastructure.security.JwtSecurity;
 import com.sparta.user.presentation.exception.CustomException;
 import com.sparta.user.presentation.exception.ErrorCode;
+import com.sparta.user.presentation.request.UserSignInRequestDto;
 import com.sparta.user.presentation.request.UserSignUpRequestDto;
 import com.sparta.user.presentation.response.CommonResponse;
 
+import com.sparta.user.presentation.response.UserSignInResponseDto;
 import com.sparta.user.presentation.response.UserSignUpResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -79,7 +81,32 @@ public class UserService {
         }
     }
 
+    // 로그인
+    @Transactional
+    public CommonResponse<UserSignInResponseDto> signIn(UserSignInRequestDto userSignInRequestDto) {
+        try {
+            // 1. 사용자 존재 여부 확인
+            User user = userRepository.findByUsername(userSignInRequestDto.getUsername())
+                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER, "사용자를 찾을 수 없습니다."));
 
+            // 2. 비밀번호 검증
+            if (!passwordEncoder.matches(userSignInRequestDto.getPassword(), user.getPassword())) {
+                throw new CustomException(ErrorCode.NOT_FOUND_USER, "비밀번호가 일치하지 않습니다.");
+            }
+
+            // 2. 생성한 인스턴스를 통해 access token 생성
+            String accessToken = jwtSecurity.createAccessToken(user.getUsername(), user.getRole());
+
+            // 4. 응답 DTO 생성
+            UserSignInResponseDto responseDto = new UserSignInResponseDto(user.getUsername(), user.getRole().toString(), accessToken);
+
+            // 5. 성공 응답 반환
+            return CommonResponse.ofSuccess(responseDto);
+        } catch (Exception e) {
+            // 예외 발생 시 오류 응답 반환
+            return CommonResponse.ofError(e.getMessage());
+        }
+    }
 
 
 
