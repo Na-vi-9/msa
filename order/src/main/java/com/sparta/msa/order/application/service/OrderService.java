@@ -18,35 +18,33 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class OrderService {
 
     private final OrderRepository orderRepository;
 
     // 주문 생성
+    @Transactional
     public OrderResponse createOrder(OrderRequest request) {
-        UUID supplierCompanyUUID = request.getSupplierCompanyUUID();
-        UUID receiverCompanyUUID = request.getReceiverCompanyUUID();
-        UUID productUUID = request.getProductUUID();
         UUID deliveryUUID = UUID.randomUUID(); // 임시 UUID 생성
 
-        // 값이 null인지 확인
-        if (supplierCompanyUUID == null || receiverCompanyUUID == null || productUUID == null) {
-            throw new CustomException(ErrorCode.BAD_REQUEST, "필수 데이터가 누락되었습니다.");
-        }
-
         try {
-            Order order = Order.createOrder(request, supplierCompanyUUID, receiverCompanyUUID, productUUID, deliveryUUID);
+            Order order = Order.createOrder(
+                    request,
+                    request.getSupplierCompanyUUID(),
+                    request.getReceiverCompanyUUID(),
+                    request.getProductUUID(),
+                    deliveryUUID
+            );
             orderRepository.save(order);
             return new OrderResponse(order.getUuid(), order.getDeliveryUUID());
         } catch (Exception e) {
             e.printStackTrace();
             throw new CustomException(ErrorCode.ORDER_CREATION_FAILED, "DB 저장 중 문제가 발생했습니다.");
         }
-
     }
 
     // 주문 목록 조회
+    @Transactional(readOnly = true)
     public Page<OrderListResponse> getOrders(String condition, Pageable pageable) {
         Page<Order> orders = orderRepository.findAllWithCondition(condition, null, pageable);
 
@@ -64,8 +62,8 @@ public class OrderService {
                 .build());
     }
 
-
     // 주문 단건 조회
+    @Transactional(readOnly = true)
     public OrderDetailResponse getOrderDetail(UUID orderUUID) {
         Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
@@ -80,9 +78,9 @@ public class OrderService {
                 .build();
     }
 
-
     // 주문 수정
-    public OrderResponse updateOrder(UUID orderUUID, OrderRequest request) {
+    @Transactional
+    public OrderDetailResponse updateOrder(UUID orderUUID, OrderRequest request) {
         Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -97,10 +95,18 @@ public class OrderService {
 
         Order updatedOrder = orderRepository.save(order);
 
-        return new OrderResponse(updatedOrder.getUuid(), updatedOrder.getDeliveryUUID());
+        return OrderDetailResponse.builder()
+                .supplierCompanyUUID(updatedOrder.getSupplierCompanyUUID())
+                .receiverCompanyUUID(updatedOrder.getReceiverCompanyUUID())
+                .productUUID(updatedOrder.getProductUUID())
+                .quantity(updatedOrder.getQuantity())
+                .memo(updatedOrder.getMemo())
+                .deliveryUUID(updatedOrder.getDeliveryUUID())
+                .build();
     }
 
     // 주문 삭제
+    @Transactional
     public void deleteOrder(UUID orderUUID) {
         Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
