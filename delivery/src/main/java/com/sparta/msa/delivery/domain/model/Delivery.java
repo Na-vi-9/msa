@@ -83,4 +83,10 @@ public class Delivery extends BaseEntity{
         this.receiverName = receiverName;
         this.receiverSlackId = receiverSlackId;
     }
+
+    public void delete(String deletedBy) {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.deletedBy = deletedBy;
+    }
 }

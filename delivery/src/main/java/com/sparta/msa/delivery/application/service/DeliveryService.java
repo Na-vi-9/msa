@@ -31,9 +31,17 @@ public class DeliveryService {
     @Transactional
     public UpdateDeliveryResponse updateDelivery(UUID deliveryUUID, UpdateDeliveryDto request) {
 
-        return deliveryRepository.findByUuid(deliveryUUID).map(delivery -> {
+        return deliveryRepository.findByUuidAndIsDeletedFalse(deliveryUUID).map(delivery -> {
             delivery.update(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(), request.getArrivalHubUUID(), request.getDeliveryAddress(), request.getReceiverName(), request.getReceiverSlackId());
             return UpdateDeliveryResponse.of(delivery);
         }).orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
+
+    }
+
+    @Transactional
+    public void deleteDelivery(UUID deliveryUUID, String deleteBy) {
+        deliveryRepository.findByUuidAndIsDeletedFalse(deliveryUUID)
+                .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND))
+                .delete(deleteBy);
     }
 }
