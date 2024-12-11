@@ -1,10 +1,15 @@
 package com.sparta.msa.delivery.infrastructure.repository;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.msa.delivery.domain.model.Delivery;
 import com.sparta.msa.delivery.domain.repository.DeliveryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -30,6 +35,17 @@ public class DeliveryRepositoryImpl implements DeliveryRepository {
                 .from(delivery)
                 .where(delivery.isDeleted.eq(false))
                 .where(delivery.uuid.eq(uuid));
+
         return Optional.ofNullable(query.fetchOne());
+    }
+
+    @Override
+    public Page<Delivery> searchDeliveriesIsDeletedFalse(Predicate predicate, Pageable pageable) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder(predicate);
+
+        booleanBuilder.and(delivery.isDeleted.eq(false));
+
+        return deliveryJpaRepository.findAll(booleanBuilder, pageable);
+
     }
 }
