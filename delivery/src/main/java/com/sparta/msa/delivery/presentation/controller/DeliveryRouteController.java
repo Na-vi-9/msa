@@ -25,4 +25,14 @@ public class DeliveryRouteController {
         return CommonResponse.ofSuccess(deliveryRouteService.updateDeliveryRoute(deliveryRouteUUID, request.toDto()));
 
     }
+
+    @DeleteMapping("/{deliveryRouteUUID}")
+    public CommonResponse<?> deleteDeliveryRoute(@PathVariable UUID deliveryRouteUUID) {
+        // TODO
+        //  헤더로 부터 deleteBy 받아오기
+        String deleteBy = "username";
+        deliveryRouteService.deleteDeliveryRoute(deliveryRouteUUID, deleteBy);
+
+        return CommonResponse.ofSuccess(null);
+    }
 }

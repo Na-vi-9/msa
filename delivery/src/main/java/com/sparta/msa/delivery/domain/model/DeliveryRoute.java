@@ -100,4 +100,10 @@ public class DeliveryRoute extends BaseEntity{
         this.status = status;
         this.deliveryManagerUsername = deliveryManagerUsername;
     }
+
+    public void delete(String deletedBy) {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.deletedBy = deletedBy;
+    }
 }
