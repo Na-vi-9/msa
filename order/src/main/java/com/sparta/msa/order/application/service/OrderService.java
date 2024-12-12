@@ -8,6 +8,8 @@ import com.sparta.msa.order.domain.model.Order;
 import com.sparta.msa.order.exception.CommonResponse;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
+import com.sparta.msa.order.infrastructure.client.ProductClient;
+import com.sparta.msa.order.infrastructure.client.ProductResponse;
 import com.sparta.msa.order.infrastructure.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,11 +24,21 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final ProductClient productClient;
+
 
     // 주문 생성
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
-        UUID deliveryUUID = UUID.randomUUID(); // 임시 UUID 생성
+        System.out.println("Start validating product with UUID: " + request.getProductUUID());
+        ProductResponse productResponse = productClient.getProductById(request.getProductUUID());
+        System.out.println("ProductResponse received: " + productResponse);
+
+        if (productResponse == null || productResponse.getQuantity() <= 0) {
+            throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        UUID deliveryUUID = UUID.randomUUID();
 
         try {
             Order order = Order.createOrder(
@@ -36,13 +48,16 @@ public class OrderService {
                     request.getProductUUID(),
                     deliveryUUID
             );
-            orderRepository.save(order);
-            return new OrderResponse(order.getUuid(), order.getDeliveryUUID());
+            Order savedOrder = orderRepository.save(order);
+            return new OrderResponse(savedOrder.getUuid(), savedOrder.getDeliveryUUID());
         } catch (Exception e) {
             e.printStackTrace();
             throw new CustomException(ErrorCode.ORDER_CREATION_FAILED);
         }
     }
+
+
+
 
     // 주문 목록 조회
     @Transactional(readOnly = true)
