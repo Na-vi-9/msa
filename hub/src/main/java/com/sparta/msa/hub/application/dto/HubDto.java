@@ -12,9 +12,9 @@ public class HubDto implements Serializable {
     private String address;
     private Double latitude;
     private Double longitude;
-    private Long managerId;
+    private String managerId;
 
-    public static HubDto create(String name, String address, Double latitude, Double longitude, Long managerId) {
+    public static HubDto create(String name, String address, Double latitude, Double longitude, String managerId) {
         return HubDto.builder()
                 .name(name)
                 .address(address)
