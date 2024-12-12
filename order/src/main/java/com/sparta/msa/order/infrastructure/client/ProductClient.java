@@ -10,5 +10,5 @@ import java.util.UUID;
 public interface ProductClient {
 
     @GetMapping("/products/{productId}")
-    ProductResponse getProductById(@PathVariable UUID productId);
+    ProductInfo getProductById(@PathVariable UUID productId);
 }

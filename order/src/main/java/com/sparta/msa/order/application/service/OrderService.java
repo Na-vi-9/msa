@@ -9,7 +9,7 @@ import com.sparta.msa.order.exception.CommonResponse;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
 import com.sparta.msa.order.infrastructure.client.ProductClient;
-import com.sparta.msa.order.infrastructure.client.ProductResponse;
+import com.sparta.msa.order.infrastructure.client.ProductInfo;
 import com.sparta.msa.order.infrastructure.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,9 +30,7 @@ public class OrderService {
     // 주문 생성
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
-        System.out.println("Start validating product with UUID: " + request.getProductUUID());
-        ProductResponse productResponse = productClient.getProductById(request.getProductUUID());
-        System.out.println("ProductResponse received: " + productResponse);
+        ProductInfo productResponse = productClient.getProductById(request.getProductUUID());
 
         if (productResponse == null || productResponse.getQuantity() <= 0) {
             throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
