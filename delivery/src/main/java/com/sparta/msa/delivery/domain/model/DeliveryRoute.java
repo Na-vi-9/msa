@@ -14,11 +14,11 @@ import java.util.UUID;
 @NoArgsConstructor
 public class DeliveryRoute extends BaseEntity{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID uuid;
 
-    @Column(name = "deliver_uuid", nullable = false)
-    private UUID deliverUUID;
+    @Column(name = "delivery_uuid", nullable = false)
+    private UUID deliveryUUID;
 
     @Column(name = "departure_hub_uuid", nullable = false)
     private UUID departureHubUUID;
@@ -68,7 +68,7 @@ public class DeliveryRoute extends BaseEntity{
                                        DeliveryStatus status,
                                        String deliveryManagerUsername) {
         return DeliveryRoute.builder()
-                .deliverUUID(deliveryUUID)
+                .deliveryUUID(deliveryUUID)
                 .departureHubUUID(departureHubUUID)
                 .arrivalHubUUID(arrivalHubUUID)
                 .sequence(sequence)
