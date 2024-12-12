@@ -10,12 +10,14 @@ import com.sparta.msa.delivery.presentation.request.UpdateDeliveryRouteRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -35,7 +37,9 @@ public class DeliveryRouteController {
     @GetMapping
     public CommonResponse<PagedModel<DeliveryRouteResponse>> searchDeliveryRoutes(@QuerydslPredicate(root = DeliveryRoute.class) Predicate predicate,
                                                                          @PageableDefault(sort = {"createdAt", "updatedAt"}) Pageable pageable) {
-        return CommonResponse.ofSuccess(deliveryRouteService.searchDeliveryRoutesIsDeletedFalse(predicate, pageable));
+        Pageable adjustedPageable = adjustPageSize(pageable, List.of(10, 30, 50), 10);
+
+        return CommonResponse.ofSuccess(deliveryRouteService.searchDeliveryRoutesIsDeletedFalse(predicate, adjustedPageable));
     }
 
     @GetMapping("/{DeliveryRouteUUID}")
@@ -51,5 +55,12 @@ public class DeliveryRouteController {
         deliveryRouteService.deleteDeliveryRoute(deliveryRouteUUID, deleteBy);
 
         return CommonResponse.ofSuccess(null);
+    }
+
+    private Pageable adjustPageSize(Pageable pageable, List<Integer> allowSizes, int defaultSize) {
+        if(!allowSizes.contains(pageable.getPageSize())) {
+            return PageRequest.of(pageable.getPageNumber(), defaultSize, pageable.getSort());
+        }
+        return pageable;
     }
 }
