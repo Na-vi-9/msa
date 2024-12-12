@@ -1,4 +1,4 @@
-package com.sparta.msa.delivery.application.dto;
+package com.sparta.msa.delivery.application.dto.delivery;
 
 import com.sparta.msa.delivery.domain.model.Delivery;
 import com.sparta.msa.delivery.domain.model.DeliveryStatus;
