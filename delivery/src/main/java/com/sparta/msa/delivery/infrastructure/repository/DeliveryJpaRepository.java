@@ -13,7 +13,7 @@ import org.springframework.data.querydsl.binding.QuerydslBindings;
 import java.util.*;
 
 
-public interface DeliveryJpaRepository extends JpaRepository<Delivery, Long>,
+public interface DeliveryJpaRepository extends JpaRepository<Delivery, UUID>,
         QuerydslPredicateExecutor<Delivery>,
         QuerydslBinderCustomizer<QDelivery> {
     @Override

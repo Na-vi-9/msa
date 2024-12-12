@@ -1,6 +1,6 @@
 package com.sparta.msa.delivery.presentation.request;
 
-import com.sparta.msa.delivery.application.dto.CreateDeliveryDto;
+import com.sparta.msa.delivery.application.dto.delivery.CreateDeliveryDto;
 import com.sparta.msa.delivery.domain.model.DeliveryStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

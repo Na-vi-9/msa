@@ -1,9 +1,9 @@
 package com.sparta.msa.delivery.presentation.controller;
 
 import com.querydsl.core.types.Predicate;
-import com.sparta.msa.delivery.application.dto.CreateDeliveryResponse;
-import com.sparta.msa.delivery.application.dto.DeliveryResponse;
-import com.sparta.msa.delivery.application.dto.UpdateDeliveryResponse;
+import com.sparta.msa.delivery.application.dto.delivery.CreateDeliveryResponse;
+import com.sparta.msa.delivery.application.dto.delivery.DeliveryResponse;
+import com.sparta.msa.delivery.application.dto.delivery.UpdateDeliveryResponse;
 import com.sparta.msa.delivery.application.service.DeliveryService;
 import com.sparta.msa.delivery.common.dto.CommonResponse;
 import com.sparta.msa.delivery.domain.model.Delivery;

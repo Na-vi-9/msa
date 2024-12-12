@@ -1,4 +1,4 @@
-package com.sparta.msa.delivery.application.dto;
+package com.sparta.msa.delivery.application.dto.delivery;
 
 import com.sparta.msa.delivery.domain.model.Delivery;
 import com.sparta.msa.delivery.domain.model.DeliveryStatus;
@@ -11,7 +11,6 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public class UpdateDeliveryResponse {
-    private UUID uuid;
     private UUID orderUUID;
     private UUID departureHubUUID;
     private UUID arrivalHubUUID;
@@ -22,7 +21,6 @@ public class UpdateDeliveryResponse {
 
     public static UpdateDeliveryResponse of(Delivery delivery) {
         return UpdateDeliveryResponse.builder()
-                .uuid(delivery.getUuid())
                 .orderUUID(delivery.getOrderUUID())
                 .departureHubUUID(delivery.getDepartureHubUUID())
                 .arrivalHubUUID(delivery.getArrivalHubUUID())
