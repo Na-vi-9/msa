@@ -16,7 +16,7 @@ public interface DeliveryRouteJpaRepository extends JpaRepository<DeliveryRoute,
         QuerydslPredicateExecutor<DeliveryRoute>,
         QuerydslBinderCustomizer<QDeliveryRoute> {
     @Override
-    default void customize(QuerydslBindings querydslBindings, @NotNull QDeliveryRoute qDelivery) {
+    default void customize(QuerydslBindings querydslBindings, @NotNull QDeliveryRoute qDeliveryRoute) {
         querydslBindings.bind(String.class).all((StringPath path, Collection<? extends String> values) -> {
             List<String> valueList = new ArrayList<>(values.stream().map(String::trim).toList());
             if (valueList.isEmpty()) {
