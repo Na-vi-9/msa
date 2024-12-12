@@ -49,7 +49,8 @@ public class GetHubsResponse implements Serializable{
         @Getter
         @Builder
         @AllArgsConstructor
-        public static class Hub {
+        @NoArgsConstructor
+        public static class Hub implements Serializable {
             @JsonFormat(shape = JsonFormat.Shape.STRING)
             private UUID hubUUID;
 

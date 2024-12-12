@@ -24,7 +24,7 @@ public class HubService {
     private final HubRepository hubRepository;
 
     @Transactional
-//    @CachePut(cacheNames = "hubCache", key = "#result.hubUUID")
+    @CacheEvict(cacheNames = "hubsCache", allEntries = true)
     public CreateHubResponse createHub(HubDto request) {
         // 유저 검증 메서드 호출 필요(테스트를 위해 임시 값 사용)
         Long validateManagerId = 1L;
