@@ -36,15 +36,14 @@ public class Hub extends BaseEntity implements Serializable {
     }
 
     public static Hub create(String name, String address, Double latitude, Double longitude, String managerId) {
-        Hub hub = Hub.builder()
+
+        return Hub.builder()
                 .name(name)
                 .address(address)
                 .latitude(latitude)
                 .longitude(longitude)
                 .managerId(managerId)
                 .build();
-
-        return hub;
     }
 
     public void update(String name, String address, Double latitude, Double longitude, String managerId) {
