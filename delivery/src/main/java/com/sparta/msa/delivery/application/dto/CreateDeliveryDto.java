@@ -17,21 +17,21 @@ public class CreateDeliveryDto {
     private UUID departureHubUUID;
     private UUID arrivalHubUUID;
     private String deliveryAddress;
-    private String username;
+    private String recipientUsername;
 
     public static CreateDeliveryDto create(UUID orderUUID,
                                            DeliveryStatus status,
                                            UUID departureHubUUID,
                                            UUID arrivalHubUUID,
                                            String deliveryAddress,
-                                           String username) {
+                                           String recipientUsername) {
         return CreateDeliveryDto.builder()
                 .orderUUID(orderUUID)
                 .status(status)
                 .departureHubUUID(departureHubUUID)
                 .arrivalHubUUID(arrivalHubUUID)
                 .deliveryAddress(deliveryAddress)
-                .username(username)
+                .recipientUsername(recipientUsername)
                 .build();
     }
 }

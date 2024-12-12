@@ -29,10 +29,14 @@ public class UpdateDeliveryRequest {
 
     @NotNull
     @Size(max = 10)
-    private String username;
+    private String recipientUsername;
+
+    @NotNull
+    @Size(max = 10)
+    private String deliveryManagerUsername;
 
     public UpdateDeliveryDto toDto() {
         return UpdateDeliveryDto.create(this.orderUUID, this.status, this.departureHubUUID,
-                this.arrivalHubUUID, this.deliveryAddress, this.username);
+                this.arrivalHubUUID, this.deliveryAddress, this.recipientUsername, this.deliveryManagerUsername);
     }
 }
