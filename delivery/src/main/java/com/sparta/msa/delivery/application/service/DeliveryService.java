@@ -24,8 +24,10 @@ public class DeliveryService {
 
     @Transactional
     public CreateDeliveryResponse createDelivery(CreateDeliveryDto request) {
+        // TODO 배송 담당자 배정
+        String deliveryManagerUsername = "username";
+        Delivery delivery = Delivery.create(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(), request.getArrivalHubUUID(), request.getDeliveryAddress(), request.getRecipientUsername(), deliveryManagerUsername);
 
-        Delivery delivery = Delivery.create(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(), request.getArrivalHubUUID(), request.getDeliveryAddress(), request.getUsername());
         return CreateDeliveryResponse.of(deliveryRepository.save(delivery));
 
     }
@@ -34,7 +36,7 @@ public class DeliveryService {
     public UpdateDeliveryResponse updateDelivery(UUID deliveryUUID, UpdateDeliveryDto request) {
 
         return deliveryRepository.findByUuidAndIsDeletedFalse(deliveryUUID).map(delivery -> {
-            delivery.update(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(), request.getArrivalHubUUID(), request.getDeliveryAddress(), request.getUsername());
+            delivery.update(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(), request.getArrivalHubUUID(), request.getDeliveryAddress(), request.getRecipientUsername(), request.getDeliveryManagerUsername());
             return UpdateDeliveryResponse.of(delivery);
         }).orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
 

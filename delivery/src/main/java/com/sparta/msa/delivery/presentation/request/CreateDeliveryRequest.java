@@ -29,10 +29,10 @@ public class CreateDeliveryRequest {
 
     @NotNull
     @Size(max = 10)
-    private String username;
+    private String recipientUsername;
 
     public CreateDeliveryDto toDto() {
         return CreateDeliveryDto.create(this.orderUUID, this.status, this.departureHubUUID,
-                                    this.arrivalHubUUID, this.deliveryAddress, this.username);
+                                    this.arrivalHubUUID, this.deliveryAddress, this.recipientUsername);
     }
 }

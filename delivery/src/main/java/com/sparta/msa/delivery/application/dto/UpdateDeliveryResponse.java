@@ -17,7 +17,8 @@ public class UpdateDeliveryResponse {
     private UUID arrivalHubUUID;
     private DeliveryStatus status;
     private String deliveryAddress;
-    private String username;
+    private String recipientUsername;
+    private String deliveryManagerUsername;
 
     public static UpdateDeliveryResponse of(Delivery delivery) {
         return UpdateDeliveryResponse.builder()
@@ -27,7 +28,8 @@ public class UpdateDeliveryResponse {
                 .arrivalHubUUID(delivery.getArrivalHubUUID())
                 .status(delivery.getStatus())
                 .deliveryAddress(delivery.getDeliveryAddress())
-                .username(delivery.getUsername())
+                .recipientUsername(delivery.getRecipientUsername())
+                .deliveryManagerUsername(delivery.getDeliveryManagerUsername())
                 .build();
     }
 }

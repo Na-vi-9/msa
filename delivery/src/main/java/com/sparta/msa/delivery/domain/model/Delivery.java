@@ -33,8 +33,11 @@ public class Delivery extends BaseEntity{
     @Column(name = "delivery_address", nullable = false)
     private String deliveryAddress;
 
-    @Column(name = "username", nullable = false, length = 10)
-    private String username;
+    @Column(name = "recipient_username", nullable = false, length = 10)
+    private String recipientUsername;
+
+    @Column(name = "delivery_manager_username", nullable = false, length = 10)
+    private String deliveryManagerUsername;
 
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default
@@ -52,29 +55,33 @@ public class Delivery extends BaseEntity{
                                   UUID departureHubUUID,
                                   UUID arrivalHubUUID,
                                   String deliveryAddress,
-                                  String username) {
+                                  String recipientUsername,
+                                  String deliveryManagerUsername) {
         return Delivery.builder()
                 .orderUUID(orderUUID)
                 .status(status)
                 .departureHubUUID(departureHubUUID)
                 .arrivalHubUUID(arrivalHubUUID)
                 .deliveryAddress(deliveryAddress)
-                .username(username)
+                .recipientUsername(recipientUsername)
+                .deliveryManagerUsername(deliveryManagerUsername)
                 .build();
     }
 
     public void update(UUID orderUUID,
-                              DeliveryStatus status,
-                              UUID departureHubUUID,
-                              UUID arrivalHubUUID,
-                              String deliveryAddress,
-                              String username) {
+                       DeliveryStatus status,
+                       UUID departureHubUUID,
+                       UUID arrivalHubUUID,
+                       String deliveryAddress,
+                       String recipientUsername,
+                       String deliveryManagerUsername) {
         this.orderUUID = orderUUID;
         this.status = status;
         this.departureHubUUID = departureHubUUID;
         this.arrivalHubUUID = arrivalHubUUID;
         this.deliveryAddress = deliveryAddress;
-        this.username = username;
+        this.recipientUsername = recipientUsername;
+        this.deliveryManagerUsername = deliveryManagerUsername;
     }
 
     public void delete(String deletedBy) {
