@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
 
 @Slf4j
@@ -50,7 +49,7 @@ public class AuthService {
         try {
             // 1. user 서비스에 회원가입 요청
             ResponseEntity<CommonResponse<SignUpResponseDto>> response = restTemplate.exchange(
-                    userServiceUrl + "/user/signUp",
+                    userServiceUrl + "/users/signUp",
                     HttpMethod.POST,
                     new HttpEntity<>(signUpRequestDto),
                     new ParameterizedTypeReference<CommonResponse<SignUpResponseDto>>() {}
@@ -107,7 +106,7 @@ public class AuthService {
         try {
             // 1. user 서비스에 로그인 요청
             ResponseEntity<CommonResponse<SignInResponseDto>> response = restTemplate.exchange(
-                    userServiceUrl + "/user/signIn",
+                    userServiceUrl + "/users/signIn",
                     HttpMethod.POST,
                     new HttpEntity<>(signInRequestDto),
                     new ParameterizedTypeReference<CommonResponse<SignInResponseDto>>() {}
