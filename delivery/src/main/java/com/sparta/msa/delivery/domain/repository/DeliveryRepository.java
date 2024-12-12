@@ -12,8 +12,7 @@ import java.util.UUID;
 @Repository
 public interface DeliveryRepository {
     Delivery save(Delivery delivery);
+    Page<Delivery> searchDeliveriesIsDeletedFalse(Predicate predicate, Pageable pageable);
 
     Optional<Delivery> findByUuidAndIsDeletedFalse(UUID uuid);
-
-    Page<Delivery> searchDeliveriesIsDeletedFalse(Predicate predicate, Pageable pageable);
 }
