@@ -1,13 +1,17 @@
 package com.sparta.msa.product.application.dto;
 
 import com.sparta.msa.product.domain.model.Product;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 
 import java.util.UUID;
 
-@Data
+@Getter
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProductResponse {
     private UUID productUUID;
     private String name;

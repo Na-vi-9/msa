@@ -11,6 +11,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  application:
+    name: product
 
 server:
   port: 19092
@@ -18,3 +20,12 @@ server:
 logging:
   level:
     root: info
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+
+feign:
+  hystrix:
+    enabled: true
