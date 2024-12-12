@@ -69,4 +69,11 @@ public class DeliveryRouteService {
                 .map(DeliveryRouteResponse::of)
                 .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_ROUTE_NOT_FOUND));
     }
+  
+    @Transactional
+    public void deleteDeliveryRoute(UUID deliveryRouteUUID, String deleteBy) {
+        deliveryRouteRepository.findByUuidAndIsDeletedFalse(deliveryRouteUUID)
+                .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_ROUTE_NOT_FOUND))
+                .delete(deleteBy);
+    }
 }

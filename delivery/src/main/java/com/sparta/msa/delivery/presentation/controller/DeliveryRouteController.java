@@ -30,7 +30,6 @@ public class DeliveryRouteController {
                                                                            @Valid @RequestBody UpdateDeliveryRouteRequest request) {
 
         return CommonResponse.ofSuccess(deliveryRouteService.updateDeliveryRoute(deliveryRouteUUID, request.toDto()));
-
     }
 
     @GetMapping
@@ -42,5 +41,15 @@ public class DeliveryRouteController {
     @GetMapping("/{DeliveryRouteUUID}")
     public CommonResponse<DeliveryRouteResponse> findDeliveryRouteByUUID(@PathVariable UUID DeliveryRouteUUID) {
         return CommonResponse.ofSuccess(deliveryRouteService.findDeliveryRouteByUUID(DeliveryRouteUUID));
+    }
+
+    @DeleteMapping("/{deliveryRouteUUID}")
+    public CommonResponse<?> deleteDeliveryRoute(@PathVariable UUID deliveryRouteUUID) {
+        // TODO
+        //  헤더로 부터 deleteBy 받아오기
+        String deleteBy = "username";
+        deliveryRouteService.deleteDeliveryRoute(deliveryRouteUUID, deleteBy);
+
+        return CommonResponse.ofSuccess(null);
     }
 }
