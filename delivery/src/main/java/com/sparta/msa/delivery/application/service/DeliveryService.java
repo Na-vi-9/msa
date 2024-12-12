@@ -21,11 +21,13 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
+    private final DeliveryRouteService deliveryRouteService;
 
     @Transactional
     public CreateDeliveryResponse createDelivery(CreateDeliveryDto request) {
-        // TODO 배송 담당자 배정
+        // TODO 경로 생성 return 배송 담당자
         String deliveryManagerUsername = "username";
+
         Delivery delivery = Delivery.create(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(), request.getArrivalHubUUID(), request.getDeliveryAddress(), request.getRecipientUsername(), deliveryManagerUsername);
 
         return CreateDeliveryResponse.of(deliveryRepository.save(delivery));
