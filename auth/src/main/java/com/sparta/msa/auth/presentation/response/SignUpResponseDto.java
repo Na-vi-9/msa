@@ -1,12 +1,13 @@
 package com.sparta.msa.auth.presentation.response;
 
 import com.sparta.msa.auth.domain.model.UserRoleEnum;
-
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+import java.time.LocalDateTime;
+
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class SignUpResponseDto {
@@ -17,4 +18,8 @@ public class SignUpResponseDto {
     private String email;
     private String slackId;
     private UserRoleEnum role;
+
+    private String createBy;
+    private LocalDateTime createAt;
+    private boolean isDeleted;
 }
