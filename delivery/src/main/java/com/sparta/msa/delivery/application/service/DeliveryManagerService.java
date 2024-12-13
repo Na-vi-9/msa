@@ -68,5 +68,11 @@ public class DeliveryManagerService {
         return new DeliveryManagerResponse(deliveryManager);
     }
 
+    @Transactional
+    public void deleteDeliveryManager(String username) {
+        DeliveryManager deliveryManager = deliveryManagerJpaRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송 담당자입니다."));
 
+        deliveryManager.delete("system");
+    }
 }
