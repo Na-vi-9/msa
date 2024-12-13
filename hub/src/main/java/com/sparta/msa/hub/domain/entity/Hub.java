@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
-public class Hub implements Serializable {
+public class Hub extends BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,41 +28,29 @@ public class Hub implements Serializable {
 
     private Double longitude;
 
-    private Long managerId;
-
-    //BaseEntity와 extends 후 제거 예정
-    private Boolean isDeleted;
+    private String managerId;
 
     @PrePersist
     private void prePersistence() {
         hubUUID = UUID.randomUUID();
-        if (isDeleted == null) {
-            isDeleted = false;
-        }
     }
 
-    public static Hub create(String name, String address, Double latitude, Double longitude, Long managerId) {
-        Hub hub = Hub.builder()
+    public static Hub create(String name, String address, Double latitude, Double longitude, String managerId) {
+
+        return Hub.builder()
                 .name(name)
                 .address(address)
                 .latitude(latitude)
                 .longitude(longitude)
                 .managerId(managerId)
                 .build();
-
-        return hub;
     }
 
-    public void update(String name, String address, Double latitude, Double longitude, Long managerId) {
+    public void update(String name, String address, Double latitude, Double longitude, String managerId) {
         this.name = name;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
         this.managerId = managerId;
-    }
-
-    // BaseEntity extends 후 제거 예정
-    public void softDeleted() {
-        this.isDeleted = true;
     }
 }

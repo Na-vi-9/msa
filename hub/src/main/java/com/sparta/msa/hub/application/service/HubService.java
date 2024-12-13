@@ -6,7 +6,7 @@ import com.sparta.msa.hub.application.dto.HubResponse;
 import com.sparta.msa.hub.domain.entity.Hub;
 import com.sparta.msa.hub.domain.exception.CustomException;
 import com.sparta.msa.hub.domain.exception.ErrorCode;
-import com.sparta.msa.hub.domain.repository.HubRepository;
+import com.sparta.msa.hub.infrastructure.repository.HubRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,7 +27,7 @@ public class HubService {
     @CacheEvict(cacheNames = "hubsCache", allEntries = true)
     public CreateHubResponse createHub(HubDto request) {
         // 유저 검증 메서드 호출 필요(테스트를 위해 임시 값 사용)
-        Long validateManagerId = 1L;
+        String validateManagerId = "master";
 
         Hub hub = Hub.create(
                 request.getName(),
@@ -46,7 +46,7 @@ public class HubService {
     @CachePut(cacheNames = "hubCache", key = "#hubUUID")
     public HubResponse updateHub(UUID hubUUID, HubDto request) {
         // 유저 검증 메서드 호출 필요
-        Long validateManagerId = 2L;
+        String validateManagerId = "master";
 
         Hub hub = hubRepository.findByHubUUID(hubUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_HUB, hubUUID.toString()));
@@ -65,14 +65,12 @@ public class HubService {
     @CacheEvict(cacheNames = "hubCache", key = "#hubUUID")
     public void deleteHub(UUID hubUUID) {
         // 삭제자 정보 - 임시 데이터 사용 추후 User 서비스 결합 후 삭제하는 관리자 id 추가
-        Long deletedManagerId = 3L;
+        String deletedManagerId = "master";
 
         // Soft Delete 방식 1
         Hub hub = hubRepository.findByHubUUID(hubUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_HUB, hubUUID.toString()));
 
-        hub.softDeleted();
-        // Soft Delete 방식 2
-//        hubRepository.softDelete(hubUUID, deletedManagerId);
+        hub.markDeleted(deletedManagerId);
     }
 }

@@ -20,7 +20,7 @@ public class HubResponse implements Serializable {
     private String hubAddress;
     private Double hubLatitude;
     private Double hubLongitude;
-    private Long hubManagerId;
+    private String hubManagerId;
 
     public static HubResponse fromHub(Hub hub) {
         return HubResponse.builder()
