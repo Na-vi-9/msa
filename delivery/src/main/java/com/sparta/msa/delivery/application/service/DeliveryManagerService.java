@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class DeliveryManagerService {
@@ -74,5 +77,21 @@ public class DeliveryManagerService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송 담당자입니다."));
 
         deliveryManager.delete("system");
+    }
+
+    @Transactional(readOnly = true)
+    public List<DeliveryManagerResponse> getDeliveryManagers(String condition, String keyword) {
+        return deliveryManagerJpaRepository.search(condition, keyword)
+                .stream()
+                .map(DeliveryManagerResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public DeliveryManagerResponse getDeliveryManagerDetail(String username) {
+        DeliveryManager deliveryManager = deliveryManagerJpaRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송 담당자입니다."));
+
+        return new DeliveryManagerResponse(deliveryManager);
     }
 }
