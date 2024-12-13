@@ -78,4 +78,32 @@ public class DeliveryRoute extends BaseEntity{
                 .deliveryManagerUsername(deliveryManagerUsername)
                 .build();
     }
+
+    public void update(UUID deliveryUUID,
+                       UUID departureHubUUID,
+                       UUID arrivalHubUUID,
+                       Integer sequence,
+                       Double estimatedDistanceKm,
+                       Integer estimatedTimeMin,
+                       Double actualDistanceKm,
+                       Integer actualTimeMin,
+                       DeliveryStatus status,
+                       String deliveryManagerUsername) {
+        this.deliveryUUID = deliveryUUID;
+        this.departureHubUUID = departureHubUUID;
+        this.arrivalHubUUID = arrivalHubUUID;
+        this.sequence = sequence;
+        this.estimatedDistanceKm = estimatedDistanceKm;
+        this.estimatedTimeMin = estimatedTimeMin;
+        this.actualDistanceKm = actualDistanceKm;
+        this.actualTimeMin = actualTimeMin;
+        this.status = status;
+        this.deliveryManagerUsername = deliveryManagerUsername;
+    }
+
+    public void delete(String deletedBy) {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.deletedBy = deletedBy;
+    }
 }
