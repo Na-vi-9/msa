@@ -41,6 +41,10 @@ spring:
           uri: lb://hub
           predicates:
             - Path=/hub/**
+        - id: users
+        - uri: lb://users
+        - predicates:
+            - Path=/users/**
       discovery:
         locator:
           enabled: true

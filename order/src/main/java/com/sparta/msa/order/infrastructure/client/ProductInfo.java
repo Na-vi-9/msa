@@ -1,17 +1,15 @@
-package com.sparta.msa.product.application.dto;
+package com.sparta.msa.order.infrastructure.client;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UpdateProductRequest {
+public class ProductInfo {
     private UUID productUUID;
     private String name;
     private Integer quantity;
