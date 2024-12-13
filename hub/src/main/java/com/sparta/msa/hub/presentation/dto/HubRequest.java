@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 @Getter
 @ToString
@@ -16,7 +15,7 @@ public class HubRequest implements Serializable {
     private String address;
     private Double latitude;
     private Double longitude;
-    private String managerId;
+    private String managerName;
 
-    public HubDto toDTO() { return HubDto.create(this.name, this.address, this.latitude, this.longitude, this.managerId); }
+    public HubDto toDTO() { return HubDto.of(this.name, this.address, this.latitude, this.longitude, this.managerName); }
 }

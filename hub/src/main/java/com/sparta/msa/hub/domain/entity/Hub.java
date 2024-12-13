@@ -28,29 +28,29 @@ public class Hub extends BaseEntity implements Serializable {
 
     private Double longitude;
 
-    private String managerId;
+    private String managerName;
 
     @PrePersist
     private void prePersistence() {
         hubUUID = UUID.randomUUID();
     }
 
-    public static Hub create(String name, String address, Double latitude, Double longitude, String managerId) {
+    public static Hub create(String name, String address, Double latitude, Double longitude, String managerName) {
 
         return Hub.builder()
                 .name(name)
                 .address(address)
                 .latitude(latitude)
                 .longitude(longitude)
-                .managerId(managerId)
+                .managerName(managerName)
                 .build();
     }
 
-    public void update(String name, String address, Double latitude, Double longitude, String managerId) {
+    public void update(String name, String address, Double latitude, Double longitude, String managerName) {
         this.name = name;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.managerId = managerId;
+        this.managerName = managerName;
     }
 }
