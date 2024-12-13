@@ -27,4 +27,13 @@ public class DeliveryManagerController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{username}")
+    public ResponseEntity<DeliveryManagerResponse> updateDeliveryManager(
+            @PathVariable String username,
+            @RequestBody DeliveryManagerRequest request
+    ) {
+        DeliveryManagerResponse response = deliveryManagerService.updateDeliveryManager(username, request);
+        return ResponseEntity.ok(response);
+    }
+
 }
