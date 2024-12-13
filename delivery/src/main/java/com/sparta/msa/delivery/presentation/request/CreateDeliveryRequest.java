@@ -32,7 +32,7 @@ public class CreateDeliveryRequest {
     private String recipientUsername;
 
     public CreateDeliveryDto toDto() {
-        return CreateDeliveryDto.create(this.orderUUID, this.status, this.departureHubUUID,
+        return CreateDeliveryDto.of(this.orderUUID, this.status, this.departureHubUUID,
                                     this.arrivalHubUUID, this.deliveryAddress, this.recipientUsername);
     }
 }

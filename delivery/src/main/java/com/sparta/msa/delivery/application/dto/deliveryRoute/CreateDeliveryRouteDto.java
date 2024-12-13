@@ -15,7 +15,7 @@ public class CreateDeliveryRouteDto {
     private UUID departureHubUUID;
     private UUID arrivalHubUUID;
 
-    public static CreateDeliveryRouteDto create(UUID deliveryUUID, UUID departureHubUUID, UUID arrivalHubUUID) {
+    public static CreateDeliveryRouteDto of(UUID deliveryUUID, UUID departureHubUUID, UUID arrivalHubUUID) {
         return CreateDeliveryRouteDto.builder()
                 .deliveryUUID(deliveryUUID)
                 .departureHubUUID(departureHubUUID)
