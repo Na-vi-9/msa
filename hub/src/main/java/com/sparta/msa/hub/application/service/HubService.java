@@ -26,7 +26,7 @@ public class HubService {
     @Transactional
     @CacheEvict(cacheNames = "hubsCache", allEntries = true)
     public CreateHubResponse createHub(HubDto request) {
-        // 유저 검증 메서드 호출 필요(테스트를 위해 임시 값 사용)
+        // TODO: 유저 검증 메서드 호출 필요(테스트를 위해 임시 값 사용)
         String validateManagerId = "master";
 
         Hub hub = Hub.create(
@@ -63,7 +63,7 @@ public class HubService {
     @Transactional
     @CacheEvict(cacheNames = "hubCache", key = "#hubUUID")
     public void deleteHub(UUID hubUUID) {
-        // 삭제자 정보 - 임시 데이터 사용 추후 User 서비스 결합 후 삭제하는 관리자 id 추가
+        // TODO: 삭제자 정보 - 임시 데이터 사용 추후 User 서비스 결합 후 삭제하는 관리자 id 추가
         String deletedManagerId = "master";
 
         Hub hub = validateHub(hubUUID);

@@ -23,7 +23,6 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class HubQueryService {
 
-    // Redis를 사용한 캐시는 추후 추가
     private final HubQueryRepository hubQueryRepository;
 
     public HubQueryService(HubQueryRepository hubQueryRepository) {
