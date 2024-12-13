@@ -8,10 +8,9 @@ import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
-@Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-public class DeliveryRouteResponse {
-    private UUID uuid;
+@Builder(access = AccessLevel.PRIVATE)
+public class UpdateDeliveryRouteResponse {
     private UUID deliveryUUID;
     private UUID departureHubUUID;
     private UUID arrivalHubUUID;
@@ -23,9 +22,8 @@ public class DeliveryRouteResponse {
     private DeliveryStatus status;
     private String deliveryManagerUsername;
 
-    public static DeliveryRouteResponse of(DeliveryRoute deliveryRoute) {
-        return DeliveryRouteResponse.builder()
-                .uuid(deliveryRoute.getUuid())
+    public static UpdateDeliveryRouteResponse of(DeliveryRoute deliveryRoute) {
+        return UpdateDeliveryRouteResponse.builder()
                 .deliveryUUID(deliveryRoute.getUuid())
                 .departureHubUUID(deliveryRoute.getDepartureHubUUID())
                 .arrivalHubUUID(deliveryRoute.getArrivalHubUUID())
