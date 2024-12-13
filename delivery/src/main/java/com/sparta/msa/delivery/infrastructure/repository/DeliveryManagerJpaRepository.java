@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -16,4 +17,9 @@ public interface DeliveryManagerJpaRepository extends JpaRepository<DeliveryMana
 
     @Query("SELECT MAX(dm.deliveryOrder) FROM DeliveryManager dm WHERE dm.isDeleted = false")
     Integer findLastDeliveryOrder();
+
+    @Query("SELECT dm FROM DeliveryManager dm WHERE " +
+            "(:condition IS NULL OR dm.type = :condition) AND " +
+            "(:keyword IS NULL OR dm.username LIKE %:keyword%)")
+    List<DeliveryManager> search(String condition, String keyword);
 }
