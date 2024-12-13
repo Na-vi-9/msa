@@ -70,4 +70,9 @@ public class DeliveryManager extends BaseEntity {
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = deletedBy;
     }
+
+    public void updateDeliveryOrder(int newOrder) {
+        this.deliveryOrder = newOrder;
+    }
+
 }
