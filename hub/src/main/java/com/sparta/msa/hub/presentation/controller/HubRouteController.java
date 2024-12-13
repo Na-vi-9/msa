@@ -19,19 +19,19 @@ public class HubRouteController {
     private final HubRouteService hubRouteService;
 
     /* 허브 전체 경로 저장은 API 무료에서 제한이 있기 때문에 미사용 처리*/
-//    @PostMapping
-//    public CommonResponse<String> generateRouteInfo() {
-//        hubRouteService.calculateAndSaveAllHubRoutes();
-//        return CommonResponse.ofSuccess("모든 허브 간 이동 경로가 저장되었습니다.");
-//    }
     @PostMapping
-    public CommonResponse<HubRouteResponse> generateRouteInfo(@RequestBody HubInfoRequest hubInfoRequest) {
-        HubRouteResponse response = HubRouteResponse
-                .from(hubRouteService.calculateAndSaveHubRoute(
-                        hubInfoRequest.getDepartureHubUUID(),
-                        hubInfoRequest.getArrivalHubUUID()));
-        return CommonResponse.ofSuccess(response);
+    public CommonResponse<String> generateRouteInfo() {
+        hubRouteService.calculateAndSaveAllHubRoutes();
+        return CommonResponse.ofSuccess("모든 허브 간 이동 경로가 저장되었습니다.");
     }
+//    @PostMapping
+//    public CommonResponse<HubRouteResponse> generateRouteInfo(@RequestBody HubInfoRequest hubInfoRequest) {
+//        HubRouteResponse response = HubRouteResponse
+//                .from(hubRouteService.calculateAndSaveHubRoute(
+//                        hubInfoRequest.getDepartureHubUUID(),
+//                        hubInfoRequest.getArrivalHubUUID()));
+//        return CommonResponse.ofSuccess(response);
+//    }
 
     @GetMapping("/{hubRouteUUID}")
     public CommonResponse<HubRouteResponse> getHubRoute(@PathVariable UUID hubRouteUUID) {

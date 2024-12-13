@@ -20,6 +20,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,6 +40,8 @@ public class HubRouteService {
     // TODO: repository 중복 코드 메서드로 최소화 하기 + 검증 메서드 만들기
     public void calculateAndSaveAllHubRoutes() {
         List<Hub> hubs = hubRepository.findAll();
+        int requestCount = 1;  // 요청 횟수를 추적
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         for (int i = 0; i < hubs.size(); i++) {
             for (int j = i + 1; j < hubs.size(); j++) {
@@ -44,6 +49,15 @@ public class HubRouteService {
                 UUID arrivalHubUUID = hubs.get(j).getHubUUID();
 
                 calculateAndSaveHubRoute(departureHubUUID, arrivalHubUUID);
+
+                requestCount++;
+
+                // 요청이 40번을 초과하면 1분 대기
+                if (requestCount >= 39) {
+                    // 1분 대기
+                    scheduler.schedule(() -> {}, 1, TimeUnit.MINUTES); // 1분 후 다시 실행
+                    requestCount = 0;  // 요청 횟수 초기화
+                }
             }
         }
     }
