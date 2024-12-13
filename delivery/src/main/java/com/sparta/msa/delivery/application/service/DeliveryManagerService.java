@@ -24,10 +24,9 @@ public class DeliveryManagerService {
 
         DeliveryManager deliveryManager = DeliveryManager.create(
                 request.getHubUUID(),
-                request.getSlackId(),
                 request.getType(),
-                nextOrder,
-                request.getUsername()
+                request.getUsername(),
+                nextOrder
         );
 
         deliveryManagerJpaRepository.save(deliveryManager);

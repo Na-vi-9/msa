@@ -21,9 +21,6 @@ public class DeliveryManager extends BaseEntity {
     @Column(name = "hub_uuid", nullable = false)
     private UUID hubUUID;
 
-    @Column(name = "slack_id", length = 50, nullable = false)
-    private String slackId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DeliveryManagerType type;
@@ -42,25 +39,21 @@ public class DeliveryManager extends BaseEntity {
     private String deletedBy;
 
     public static DeliveryManager create(UUID hubUUID,
-                                         String slackId,
                                          DeliveryManagerType type,
-                                         int deliveryOrder,
-                                         String username) {
+                                         String username,
+                                         int deliveryOrder) {
         return DeliveryManager.builder()
                 .hubUUID(hubUUID)
-                .slackId(slackId)
                 .type(type)
-                .deliveryOrder(deliveryOrder)
                 .username(username)
+                .deliveryOrder(deliveryOrder)
                 .build();
     }
 
     public void update(UUID hubUUID,
-                       String slackId,
                        DeliveryManagerType type,
                        int deliveryOrder) {
         this.hubUUID = hubUUID;
-        this.slackId = slackId;
         this.type = type;
         this.deliveryOrder = deliveryOrder;
     }
@@ -74,5 +67,4 @@ public class DeliveryManager extends BaseEntity {
     public void updateDeliveryOrder(int newOrder) {
         this.deliveryOrder = newOrder;
     }
-
 }

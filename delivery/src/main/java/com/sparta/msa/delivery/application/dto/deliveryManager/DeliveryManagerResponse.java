@@ -10,14 +10,12 @@ import java.util.UUID;
 public class DeliveryManagerResponse {
     private String username;
     private UUID hubUUID;
-    private String slackId;
     private DeliveryManagerType type;
     private int deliveryOrder;
 
     public DeliveryManagerResponse(DeliveryManager deliveryManager) {
         this.username = deliveryManager.getUsername();
         this.hubUUID = deliveryManager.getHubUUID();
-        this.slackId = deliveryManager.getSlackId();
         this.type = deliveryManager.getType();
         this.deliveryOrder = deliveryManager.getDeliveryOrder();
     }

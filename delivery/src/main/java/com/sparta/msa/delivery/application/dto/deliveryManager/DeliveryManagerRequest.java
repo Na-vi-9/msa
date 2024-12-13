@@ -9,7 +9,6 @@ import java.util.UUID;
 public class DeliveryManagerRequest {
     private String username;
     private UUID hubUUID;
-    private String slackId;
     private DeliveryManagerType type;
     private int deliveryOrder;
 }
