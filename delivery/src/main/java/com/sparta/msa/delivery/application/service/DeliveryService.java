@@ -35,7 +35,7 @@ public class DeliveryService {
                         request.getRecipientUsername(), companyDeliveryManagerUsername)
         );
         deliveryRouteService.createDeliveryRoute(
-                CreateDeliveryRouteDto.create(delivery.getUuid(), request.getDepartureHubUUID(), request.getArrivalHubUUID())
+                CreateDeliveryRouteDto.of(delivery.getUuid(), request.getDepartureHubUUID(), request.getArrivalHubUUID())
         );
 
         return CreateDeliveryResponse.of(delivery);

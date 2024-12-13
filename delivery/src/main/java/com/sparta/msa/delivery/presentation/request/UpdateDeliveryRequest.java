@@ -36,7 +36,7 @@ public class UpdateDeliveryRequest {
     private String deliveryManagerUsername;
 
     public UpdateDeliveryDto toDto() {
-        return UpdateDeliveryDto.create(this.orderUUID, this.status, this.departureHubUUID,
+        return UpdateDeliveryDto.of(this.orderUUID, this.status, this.departureHubUUID,
                 this.arrivalHubUUID, this.deliveryAddress, this.recipientUsername, this.deliveryManagerUsername);
     }
 }

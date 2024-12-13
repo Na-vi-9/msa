@@ -44,7 +44,7 @@ public class UpdateDeliveryRouteRequest {
     private String deliveryManagerUsername;
 
     public UpdateDeliveryRouteDto toDto() {
-        return UpdateDeliveryRouteDto.create(this.deliveryUUID, this.departureHubUUID, this.arrivalHubUUID,
+        return UpdateDeliveryRouteDto.of(this.deliveryUUID, this.departureHubUUID, this.arrivalHubUUID,
                 this.sequence, this.estimatedDistanceKm, this.estimatedTimeMin, this.actualDistanceKm, this.actualTimeMin,
                 this.status, this.deliveryManagerUsername);
     }

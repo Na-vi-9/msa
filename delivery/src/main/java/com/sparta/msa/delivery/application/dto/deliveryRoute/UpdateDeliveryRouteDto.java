@@ -23,7 +23,7 @@ public class UpdateDeliveryRouteDto {
     private DeliveryStatus status;
     private String deliveryManagerUsername;
 
-    public static UpdateDeliveryRouteDto create(UUID deliveryUUID, UUID departureHubUUID, UUID arrivalHubUUID,
+    public static UpdateDeliveryRouteDto of(UUID deliveryUUID, UUID departureHubUUID, UUID arrivalHubUUID,
                                                 Integer sequence, Double estimatedDistanceKm,
                                                 Integer estimatedTimeMin, Double actualDistanceKm, Integer actualTimeMin,
                                                 DeliveryStatus status, String deliveryManagerUsername) {

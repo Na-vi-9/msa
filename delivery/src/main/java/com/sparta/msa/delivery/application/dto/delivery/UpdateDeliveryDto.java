@@ -20,7 +20,7 @@ public class UpdateDeliveryDto {
     private String recipientUsername;
     private String deliveryManagerUsername;
 
-    public static UpdateDeliveryDto create(UUID orderUUID,
+    public static UpdateDeliveryDto of(UUID orderUUID,
                                            DeliveryStatus status,
                                            UUID departureHubUUID,
                                            UUID arrivalHubUUID,
