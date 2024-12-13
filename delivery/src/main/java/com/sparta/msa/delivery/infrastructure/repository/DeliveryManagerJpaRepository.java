@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface DeliveryManagerJpaRepository extends JpaRepository<DeliveryManager, String> {
+    Optional<DeliveryManager> findByUsername(String username);
 
     Optional<DeliveryManager> findTopByIsDeletedFalseOrderByDeliveryOrderAsc();
 

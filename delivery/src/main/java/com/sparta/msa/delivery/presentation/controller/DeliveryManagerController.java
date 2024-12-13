@@ -27,4 +27,19 @@ public class DeliveryManagerController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{username}")
+    public ResponseEntity<DeliveryManagerResponse> updateDeliveryManager(
+            @PathVariable String username,
+            @RequestBody DeliveryManagerRequest request
+    ) {
+        DeliveryManagerResponse response = deliveryManagerService.updateDeliveryManager(username, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> deleteDeliveryManager(@PathVariable String username) {
+        deliveryManagerService.deleteDeliveryManager(username);
+        return ResponseEntity.noContent().build();
+    }
+
 }
