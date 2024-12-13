@@ -7,14 +7,26 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  application:
+    name: order
 
 server:
   port: 19096
 
 logging:
   level:
-    root: info
+    org.springframework.cloud.openfeign: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+
+feign:
+  hystrix:
+    enabled: true
