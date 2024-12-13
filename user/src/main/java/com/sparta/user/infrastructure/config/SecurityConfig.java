@@ -1,4 +1,4 @@
-package com.sparta.user.infrastructure.security;
+package com.sparta.user.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +21,7 @@ public class SecurityConfig {
 
                     .requestMatchers("/user/signIn").permitAll()
                     .requestMatchers("/user/signUp").permitAll()
+                    .requestMatchers("/users/**").permitAll()
                     // 그 외의 요청은 인증 필요
                     .anyRequest().authenticated()
             )

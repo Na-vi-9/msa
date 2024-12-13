@@ -1,17 +1,16 @@
 package com.sparta.user.presentation.response;
 
-
+import com.sparta.user.domain.model.UserRoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Getter
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
-public class UserSignInResponseDto {
+@AllArgsConstructor
+public class UserRoleInfoResponseDto {
     private String username;
-    private String role;
-    private String accessToken;
+    private UserRoleEnum role;
 }

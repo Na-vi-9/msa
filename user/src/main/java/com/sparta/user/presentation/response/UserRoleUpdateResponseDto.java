@@ -1,6 +1,5 @@
 package com.sparta.user.presentation.response;
 
-
 import com.sparta.user.domain.model.UserRoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,20 +8,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-public class UserSignUpResponseDto {
-
+public class UserRoleUpdateResponseDto {
     private String username;
-    private String password;
-    private String name;
-    private String email;
-    private String slackId;
     private UserRoleEnum role;
-
-    private String createBy;
-    private LocalDateTime createAt;
-    private boolean isDeleted;
+    private String updatedBy;
+    private LocalDateTime updatedAt;
 }

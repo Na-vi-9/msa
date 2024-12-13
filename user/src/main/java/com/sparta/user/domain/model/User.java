@@ -1,18 +1,22 @@
 package com.sparta.user.domain.model;
 
+import com.sparta.user.presentation.request.UserInfoUpdateRequestDto;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.validator.constraints.Length;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Entity
 @Table(name = "p_user")
-public class User extends BaseEntity{
+
+public class User{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,30 +41,40 @@ public class User extends BaseEntity{
     private UserRoleEnum role;
 
     @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
+
+    private String createdBy;
+
+    private LocalDateTime updatedAt;
+
+    private String updatedBy;
+
     private LocalDateTime deletedAt;
 
-    @Length(max = 10)
     private String deletedBy;
 
     private boolean isDeleted;
 
-
-    @Builder
-    public User(String username, String password, String name, String email, String slackId, UserRoleEnum role, String createdBy) {
-        this.username = username;
-        this.password = password;
-        this.name = name;
-        this.email = email;
-        this.slackId = slackId;
+    public void updateRole(UserRoleEnum role, String jwtTokenUserName) {
         this.role = role;
-        this.isDeleted = false;
-        super.setCreatedBy(createdBy);
+        this.updatedAt = LocalDateTime.now();
+        this.updatedBy = jwtTokenUserName;
+    }
+
+    public void updateUserInfo(UserInfoUpdateRequestDto userInfoUpdateRequestDto, String password, String jwtTokenUserName) {
+        this.username = userInfoUpdateRequestDto.getUsername();
+        this.password = password;
+        this.name = userInfoUpdateRequestDto.getName();
+        this.email = userInfoUpdateRequestDto.getEmail();
+        this.slackId = userInfoUpdateRequestDto.getSlackId();
+        this.updatedAt = LocalDateTime.now();
+        this.updatedBy = jwtTokenUserName;
+
     }
 
     public void markAsDeleted(String deletedBy) {
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = deletedBy;
+        this.isDeleted = true;
     }
-
-
 }

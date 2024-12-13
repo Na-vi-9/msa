@@ -24,7 +24,7 @@ public class UserSignUpRequestDto {
     private String password;
 
     @NotNull(message = "이름은 필수입니다.")
-    @Size(min = 2, max = 10, message = "이름은 2자 이상, 10자 이하로 입력해 주세요.")
+    @Size(min = 2, max = 20, message = "이름은 2자 이상, 10자 이하로 입력해 주세요.")
     @Pattern(regexp = "^[a-zA-Z가-힣]+$", message = "이름은 한글 또는 영문 대소문자만 사용 가능합니다.")
     private String name;
 
