@@ -32,7 +32,7 @@ public class HubQueryService {
 
     @Cacheable(cacheNames = "hubCache", key = "#hubUUID")
     public HubResponse getHub(UUID hubUUID) {
-        Hub hub = hubQueryRepository.findByUUID(hubUUID)
+        Hub hub = hubQueryRepository.findByHubUUIDIsDeletedFalse(hubUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_HUB, hubUUID.toString()));
 
 
