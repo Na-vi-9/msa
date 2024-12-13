@@ -21,4 +21,10 @@ public class DeliveryManagerController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/assign")
+    public ResponseEntity<DeliveryManagerResponse> assignDeliveryManager() {
+        DeliveryManagerResponse response = deliveryManagerService.assignDeliveryManager();
+        return ResponseEntity.ok(response);
+    }
+
 }
