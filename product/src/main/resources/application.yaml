@@ -1,25 +1,24 @@
 spring:
+  application:
+    name: product
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  application:
-    name: product
-
-server:
-  port: 19092
-
-logging:
-  level:
-    root: info
+  management:
+    tracing:
+      sampling:
+        probability: 1.0
+      zipkin:
+        enabled: true
+        endpoint: http://localhost:9411/api/v2/spans # Zipkin 서버 주소
 
 eureka:
   client:
@@ -29,3 +28,10 @@ eureka:
 feign:
   hystrix:
     enabled: true
+
+server:
+  port: 19092
+
+logging:
+  level:
+    org.springframework.cloud.openfeign: DEBUG
