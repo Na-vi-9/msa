@@ -1,13 +1,19 @@
 package com.sparta.msa.delivery.application.service;
 
+import com.querydsl.core.BooleanBuilder;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerRequest;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerResponse;
 import com.sparta.msa.delivery.domain.model.DeliveryManager;
 import com.sparta.msa.delivery.domain.model.DeliveryManagerType;
+import com.sparta.msa.delivery.domain.model.QDeliveryManager;
 import com.sparta.msa.delivery.infrastructure.exception.CustomException;
 import com.sparta.msa.delivery.infrastructure.exception.ErrorCode;
 import com.sparta.msa.delivery.infrastructure.repository.DeliveryManagerJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +28,12 @@ public class DeliveryManagerService {
 
     @Transactional
     public DeliveryManagerResponse addDeliveryManager(DeliveryManagerRequest request) {
-
         if (request.getType() == DeliveryManagerType.COMPANY_MANAGER && request.getHubUUID() == null) {
             throw new IllegalArgumentException("소속 허브 ID는 필수입니다.");
         }
 
-        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder();
-        int nextOrder = (lastOrder != null) ? lastOrder + 1 : 1;
+        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder().orElse(0);
+        int nextOrder = lastOrder + 1;
 
         DeliveryManager deliveryManager = DeliveryManager.create(
                 request.getHubUUID(),
@@ -46,8 +51,8 @@ public class DeliveryManagerService {
         DeliveryManager deliveryManager = deliveryManagerJpaRepository.findTopByIsDeletedFalseOrderByDeliveryOrderAsc()
                 .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_MANAGER_NOT_FOUND));
 
-        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder();
-        deliveryManager.updateDeliveryOrder((lastOrder != null) ? lastOrder + 1 : 1);
+        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder().orElse(0);
+        deliveryManager.updateDeliveryOrder(lastOrder + 1);
 
         deliveryManagerJpaRepository.save(deliveryManager);
         return new DeliveryManagerResponse(deliveryManager);
@@ -94,4 +99,25 @@ public class DeliveryManagerService {
 
         return new DeliveryManagerResponse(deliveryManager);
     }
+
+    @Transactional(readOnly = true)
+    public Page<DeliveryManagerResponse> searchDeliveryManagers(
+            com.querydsl.core.types.Predicate predicate, int page, int size, String sort) {
+        size = (size == 10 || size == 30 || size == 50) ? size : 10;
+
+        Sort sorting = sort.equals("updatedAt")
+                ? Sort.by(Sort.Direction.DESC, "updatedAt")
+                : Sort.by(Sort.Direction.DESC, "createdAt");
+
+        Pageable pageable = PageRequest.of(page, size, sorting);
+
+        BooleanBuilder builder = new BooleanBuilder(predicate);
+        builder.and(QDeliveryManager.deliveryManager.isDeleted.eq(false));
+
+        return deliveryManagerJpaRepository.findAll(builder, pageable)
+                .map(DeliveryManagerResponse::new);
+    }
+
+
+
 }

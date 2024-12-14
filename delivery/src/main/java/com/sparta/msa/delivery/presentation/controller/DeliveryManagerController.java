@@ -1,14 +1,15 @@
 package com.sparta.msa.delivery.presentation.controller;
 
+import com.querydsl.core.types.Predicate;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerRequest;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerResponse;
 import com.sparta.msa.delivery.application.service.DeliveryManagerService;
+import com.sparta.msa.delivery.domain.model.DeliveryManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/delivery/managers")
@@ -44,21 +45,20 @@ public class DeliveryManagerController {
         return ResponseEntity.noContent().build();
     }
 
-    // 배송 담당자 목록 조회
-    @GetMapping
-    public ResponseEntity<List<DeliveryManagerResponse>> getDeliveryManagers(
-            @RequestParam(required = false) String condition,
-            @RequestParam(required = false) String keyword
-    ) {
-        List<DeliveryManagerResponse> response = deliveryManagerService.getDeliveryManagers(condition, keyword);
-        return ResponseEntity.ok(response);
-    }
-
-    // 배송 담당자 상세 조회
     @GetMapping("/{username}")
     public ResponseEntity<DeliveryManagerResponse> getDeliveryManagerDetail(@PathVariable String username) {
         DeliveryManagerResponse response = deliveryManagerService.getDeliveryManagerDetail(username);
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    public ResponseEntity<Page<DeliveryManagerResponse>> searchDeliveryManagers(
+            @QuerydslPredicate(root = DeliveryManager.class) Predicate predicate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sort) {
+        Page<DeliveryManagerResponse> response = deliveryManagerService.searchDeliveryManagers(
+                predicate, page, size, sort);
+        return ResponseEntity.ok(response);
+    }
 }
