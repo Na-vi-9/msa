@@ -1,12 +1,18 @@
 package com.sparta.msa.ai.domain.service;
 
+import com.sparta.msa.ai.domain.model.AiResponse;
+import com.sparta.msa.ai.infrastructure.repository.AiResponseRepository;
 import com.sparta.msa.ai.presentation.request.AiMessageRequestDto;
+import com.sparta.msa.ai.presentation.request.AiRequestDto;
 import com.sparta.msa.ai.presentation.request.GeminiClientRequestDto;
 import com.sparta.msa.ai.presentation.response.AiMessageCreateResponseDto;
 import com.sparta.msa.ai.presentation.response.GeminiClientResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -18,10 +24,28 @@ public class AiService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
+    @Autowired
+    private AiResponseRepository aiResponseRepository;
+    private final AlertFeignClient alertFeignClient;
+
+
     public AiMessageCreateResponseDto createAiMessage(AiMessageRequestDto requestDto) {
 
         GeminiClientResponseDto responseDto = geminiClientService.sendPrompt(apiKey,
                 GeminiClientRequestDto.create(requestDto.getQuestion() + FORMATTING_MESSAGE, FINAL_DEADLINE_FORMAT));
+
+        AiResponse aiResponse = AiResponse.builder()
+                .answer(responseDto.getCandidates()
+                        .get(0)
+                        .getContent()
+                        .getParts()
+                        .get(0)
+                        .getText())
+                .build();
+
+        AiResponse savedResponse = aiResponseRepository.save(aiResponse);
+
+        sendToSlack(savedResponse.getId());
 
         return AiMessageCreateResponseDto.builder()
                 .content(responseDto.getCandidates()
@@ -31,6 +55,11 @@ public class AiService {
                         .get(0)
                         .getText())
                 .build();
+    }
+
+    public void sendToSlack(UUID aiResponseId) {
+        AiRequestDto requestDto = new AiRequestDto(aiResponseId);
+        alertFeignClient.sendAlert(requestDto);
     }
 }
 

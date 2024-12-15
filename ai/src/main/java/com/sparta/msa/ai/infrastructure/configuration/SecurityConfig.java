@@ -19,7 +19,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
 
-                    .requestMatchers("/ai").permitAll()
+                    .requestMatchers("/**").permitAll()
                     // 그 외의 요청은 인증 필요
                     .anyRequest().authenticated()
             )
