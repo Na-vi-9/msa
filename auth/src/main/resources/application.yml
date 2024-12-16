@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: auth
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+
+service:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+
+
+userService:
+  url: http://localhost:19097
+
+server:
+  port: 19098
