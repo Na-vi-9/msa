@@ -56,11 +56,10 @@ public class DeliveryManagerController {
     // 배송 담당자 목록 조회 (검색 및 페이징 포함)
     @GetMapping
     public ResponseEntity<Page<DeliveryManagerResponse>> getDeliveryManagers(
-            @RequestParam(required = false) String keyword,
             @QuerydslPredicate(root = DeliveryManager.class) Predicate predicate,
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
     ) {
-        Page<DeliveryManagerResponse> response = deliveryManagerService.getDeliveryManagers(keyword, predicate, pageable);
+        Page<DeliveryManagerResponse> response = deliveryManagerService.getDeliveryManagers(predicate, pageable);
         return ResponseEntity.ok(response);
     }
 

@@ -24,6 +24,13 @@ public interface DeliveryManagerJpaRepository extends JpaRepository<DeliveryMana
 
     Optional<DeliveryManager> findTopByIsDeletedFalseOrderByDeliveryOrderAsc();
 
+    default Integer findLastDeliveryOrder() {
+        QDeliveryManager deliveryManager = QDeliveryManager.deliveryManager;
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(deliveryManager.isDeleted.eq(false));
+        return (int) count(builder);
+    }
+
     @Override
     default void customize(QuerydslBindings bindings, QDeliveryManager root) {
         bindings.bind(root.username).first((StringPath path, String value) -> path.containsIgnoreCase(value));
@@ -31,22 +38,13 @@ public interface DeliveryManagerJpaRepository extends JpaRepository<DeliveryMana
         bindings.excluding(root.isDeleted, root.deliveryOrder);
     }
 
-    default Page<DeliveryManager> findWithKeyword(String keyword, Predicate predicate, Pageable pageable) {
+    default Page<DeliveryManager> findWithPredicate(Predicate predicate, Pageable pageable) {
         QDeliveryManager deliveryManager = QDeliveryManager.deliveryManager;
         BooleanBuilder builder = new BooleanBuilder(predicate);
 
-        if (keyword != null && !keyword.isEmpty()) {
-            builder.and(deliveryManager.username.containsIgnoreCase(keyword));
-        }
+        builder.and(deliveryManager.isDeleted.eq(false));
 
         return findAll(builder, pageable);
     }
-
-
-    default Integer findLastDeliveryOrder() {
-        QDeliveryManager deliveryManager = QDeliveryManager.deliveryManager;
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(deliveryManager.isDeleted.eq(false));
-        return (int) count(builder);
-    }
 }
+
