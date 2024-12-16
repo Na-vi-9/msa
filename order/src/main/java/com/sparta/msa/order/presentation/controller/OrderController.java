@@ -5,8 +5,6 @@ import com.sparta.msa.order.application.dto.OrderListResponse;
 import com.sparta.msa.order.application.dto.OrderRequest;
 import com.sparta.msa.order.application.dto.OrderResponse;
 import com.sparta.msa.order.application.service.OrderService;
-import com.sparta.msa.order.exception.CommonResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,47 +22,44 @@ public class OrderController {
 
     // 주문 생성
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest request) {
-        OrderResponse response = orderService.createOrder(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request,
+                                                     @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(orderService.createOrder(request, token));
     }
 
     // 주문 목록 조회
     @GetMapping
-    public ResponseEntity<Page<OrderListResponse>> getOrders(
-            @RequestParam(required = false) String condition,
-            Pageable pageable) {
-        Page<OrderListResponse> response = orderService.getOrders(condition, pageable);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Page<OrderListResponse>> getOrders(@RequestParam(required = false) String condition,
+                                                             Pageable pageable) {
+        return ResponseEntity.ok(orderService.getOrders(condition, pageable));
     }
 
     // 주문 단건 조회
     @GetMapping("/{orderUUID}")
     public ResponseEntity<OrderDetailResponse> getOrderDetail(@PathVariable UUID orderUUID) {
-        OrderDetailResponse response = orderService.getOrderDetail(orderUUID);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(orderService.getOrderDetail(orderUUID));
     }
 
     // 주문 수정
     @PutMapping("/{orderUUID}")
-    public ResponseEntity<OrderDetailResponse> updateOrder(
-            @PathVariable UUID orderUUID,
-            @Valid @RequestBody OrderRequest request) {
-        OrderDetailResponse response = orderService.updateOrder(orderUUID, request);
-        return ResponseEntity.ok(response);
-    }
-
-    // 주문 취소
-    @PutMapping("/{orderUUID}/cancel")
-    public ResponseEntity<CommonResponse<OrderDetailResponse>> cancelOrder(@PathVariable UUID orderUUID) {
-        CommonResponse<OrderDetailResponse> response = orderService.cancelOrder(orderUUID);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<OrderDetailResponse> updateOrder(@PathVariable UUID orderUUID,
+                                                           @RequestBody OrderRequest request,
+                                                           @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(orderService.updateOrder(orderUUID, request, token));
     }
 
     // 주문 삭제
     @DeleteMapping("/{orderUUID}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable UUID orderUUID) {
-        orderService.deleteOrder(orderUUID);
+    public ResponseEntity<Void> deleteOrder(@PathVariable UUID orderUUID,
+                                            @RequestHeader("Authorization") String token) {
+        orderService.deleteOrder(orderUUID, token);
         return ResponseEntity.noContent().build();
+    }
+
+    // 주문 취소
+    @PutMapping("/{orderUUID}/cancel")
+    public ResponseEntity<OrderDetailResponse> cancelOrder(@PathVariable UUID orderUUID,
+                                                           @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(orderService.cancelOrder(orderUUID, token));
     }
 }
