@@ -1,4 +1,4 @@
-package com.sparta.alert.domain.service;//package com.sparta.alert.domain.service;
+package com.sparta.alert.domain.service;
 
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
@@ -15,19 +15,17 @@ public class SlackService {
     @Value("${slack.token}")
     private String slackToken;
 
-    private final String slackId = "주문자 slackID 가져오기";
-
-    public void sendMessage(String message) throws IOException, SlackApiException {
+    public void sendMessage(String slackUserId, String message) throws IOException, SlackApiException {
         Slack slack = Slack.getInstance();
         ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                .channel(slackId)
+                .channel(slackUserId) // Slack User ID를 채널로 사용
                 .text(message)
                 .build();
 
         ChatPostMessageResponse response = slack.methods(slackToken).chatPostMessage(request);
 
         if (!response.isOk()) {
-            throw new RuntimeException("Error sending message to Slack: " + response.getError());
+            throw new RuntimeException("Error sending Slack DM: " + response.getError());
         }
     }
 }

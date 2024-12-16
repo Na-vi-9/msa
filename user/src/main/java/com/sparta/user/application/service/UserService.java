@@ -297,4 +297,11 @@ public class UserService {
         return "MASTER".equals(role);
     }
 
+    public String getSlackIdByUsername(String username) {
+        // 사용자 존재 여부 확인
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        return user.getSlackId();
+    }
+
 }

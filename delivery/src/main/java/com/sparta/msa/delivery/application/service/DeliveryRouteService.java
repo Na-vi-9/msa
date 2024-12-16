@@ -5,7 +5,6 @@ import com.sparta.msa.delivery.application.dto.deliveryRoute.CreateDeliveryRoute
 import com.sparta.msa.delivery.application.dto.deliveryRoute.DeliveryRouteResponse;
 import com.sparta.msa.delivery.application.dto.deliveryRoute.UpdateDeliveryRouteDto;
 import com.sparta.msa.delivery.application.dto.deliveryRoute.UpdateDeliveryRouteResponse;
-import com.sparta.msa.delivery.application.dto.hubRoute.GetHubRouteRequest;
 import com.sparta.msa.delivery.application.dto.hubRoute.HubRouteDto;
 import com.sparta.msa.delivery.domain.model.DeliveryRoute;
 import com.sparta.msa.delivery.domain.model.DeliveryStatus;
@@ -27,14 +26,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DeliveryRouteService {
     private final DeliveryRouteRepository deliveryRouteRepository;
-    private final HubService hubService;
 
     @Transactional
     public void createDeliveryRoute(CreateDeliveryRouteDto request) {
         // TODO
         //  P2P: 출발지와 도착지 허브를 통해 경로 받고 해당 허브 배송담당자 추출
-        HubRouteDto hubRouteDto = hubService.getHubRoute(GetHubRouteRequest.of(request.getDepartureHubUUID(), request.getArrivalHubUUID())).data();
-
+        HubRouteDto hubRouteDto = new HubRouteDto(request.getDepartureHubUUID(), request.getArrivalHubUUID(), 1, 1.0);
         String deliveryManagerUsername = "username";
         Integer sequence = 1;
 

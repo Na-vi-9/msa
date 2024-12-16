@@ -1,36 +1,28 @@
 package com.sparta.alert.presentation.controller;
 
-import com.slack.api.methods.SlackApiException;
-import com.sparta.alert.domain.service.AiFeignClient;
-import com.sparta.alert.domain.service.SlackService;
-import com.sparta.alert.presentation.request.AiRequestDto;
-import com.sparta.alert.presentation.response.AiMessageCreateResponseDto;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.sparta.alert.domain.service.AlertService;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import java.util.UUID;
 
 @RestController
+@RequestMapping("/alert")
 public class SlackController {
 
+    private final AlertService alertService;
 
-    private final SlackService slackService;
-    private final AiFeignClient aiFeignClient;
-
-    public SlackController(SlackService slackService, AiFeignClient aiFeignClient) {
-        this.slackService = slackService;
-        this.aiFeignClient = aiFeignClient;
+    public SlackController(AlertService alertService) {
+        this.alertService = alertService;
     }
 
-    @PostMapping("/alert")
-    public String sendMessage(@RequestBody AiRequestDto aiRequestDto) throws SlackApiException, IOException {
-
-        AiMessageCreateResponseDto responseDto = aiFeignClient.getAiResponseById(aiRequestDto.getAiResponseId());
-
-        // slack에 전송
-        slackService.sendMessage(responseDto.getContent());
-
-        return "Message sent successfully!";
+    @PostMapping("/send-slack")
+    public String sendSlackMessage(@RequestParam UUID aiResponseId,
+                                   @RequestHeader("Authorization") String token) {
+        try {
+            alertService.sendFinalDeadline(aiResponseId, token);
+            return "Slack DM sent successfully!";
+        } catch (Exception e) {
+            return "Error occurred while sending Slack DM: " + e.getMessage();
+        }
     }
 }

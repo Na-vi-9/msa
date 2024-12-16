@@ -40,3 +40,9 @@ service:
   jwt:
     access-expiration: 3600000
     secret-key: ${JWT_SECRET_KEY}
+
+slack:
+  bot:
+    token: ${SLACK_TOKEN}
+  channel:
+    id: T0856DP3JAW
