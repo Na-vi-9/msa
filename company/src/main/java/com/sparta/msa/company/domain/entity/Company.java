@@ -21,6 +21,7 @@ public class Company extends BaseEntity implements Serializable {
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
     private Type type;
 
     private UUID manageHubUUID;
