@@ -15,13 +15,12 @@ public class SlackService {
     @Value("${slack.token}")
     private String slackToken;
 
-    @Value("${slack.channel}")
-    private String slackChannel;
+    private final String slackId = "주문자 slackID 가져오기";
 
     public void sendMessage(String message) throws IOException, SlackApiException {
         Slack slack = Slack.getInstance();
         ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                .channel(slackChannel)
+                .channel(slackId)
                 .text(message)
                 .build();
 

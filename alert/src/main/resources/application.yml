@@ -18,7 +18,6 @@ spring:
 
 slack:
   token: ${SLACK_TOKEN}
-  channel: ${SLACK_CHANNEL}
 
 eureka:
   client:
