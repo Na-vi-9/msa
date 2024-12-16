@@ -3,13 +3,17 @@ package com.sparta.msa.delivery.presentation.controller;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerRequest;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerResponse;
 import com.sparta.msa.delivery.application.service.DeliveryManagerService;
+import com.sparta.msa.delivery.domain.model.DeliveryManager;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.querydsl.core.types.Predicate;
+
 
 @RestController
 @RequestMapping("/delivery/managers")
@@ -52,11 +56,11 @@ public class DeliveryManagerController {
     // 배송 담당자 목록 조회 (검색 및 페이징 포함)
     @GetMapping
     public ResponseEntity<Page<DeliveryManagerResponse>> getDeliveryManagers(
-            @RequestParam(required = false) String condition,
             @RequestParam(required = false) String keyword,
+            @QuerydslPredicate(root = DeliveryManager.class) Predicate predicate,
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
     ) {
-        Page<DeliveryManagerResponse> response = deliveryManagerService.getDeliveryManagers(condition, keyword, pageable);
+        Page<DeliveryManagerResponse> response = deliveryManagerService.getDeliveryManagers(keyword, predicate, pageable);
         return ResponseEntity.ok(response);
     }
 

@@ -88,13 +88,11 @@ public class DeliveryManagerService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DeliveryManagerResponse> getDeliveryManagers(
-            String condition, String keyword, Pageable pageable) {
-
-        return deliveryManagerJpaRepository
-                .findWithCondition(condition, keyword, pageable)
+    public Page<DeliveryManagerResponse> getDeliveryManagers(String keyword, Predicate predicate, Pageable pageable) {
+        return deliveryManagerJpaRepository.findWithKeyword(keyword, predicate, pageable)
                 .map(DeliveryManagerResponse::new);
     }
+
 
     @Transactional(readOnly = true)
     public DeliveryManagerResponse getDeliveryManagerDetail(String username) {
