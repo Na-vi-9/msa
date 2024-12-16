@@ -4,6 +4,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.sparta.msa.delivery.domain.model.DeliveryManager;
 import com.sparta.msa.delivery.domain.model.QDeliveryManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
@@ -25,7 +27,7 @@ public interface DeliveryManagerJpaRepository extends JpaRepository<DeliveryMana
         return (int) count(builder);
     }
 
-    default Predicate buildSearchPredicate(String condition, String keyword) {
+    default Page<DeliveryManager> findWithCondition(String condition, String keyword, Pageable pageable) {
         QDeliveryManager deliveryManager = QDeliveryManager.deliveryManager;
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -38,6 +40,7 @@ public interface DeliveryManagerJpaRepository extends JpaRepository<DeliveryMana
         }
 
         builder.and(deliveryManager.isDeleted.eq(false));
-        return builder;
+
+        return findAll(builder, pageable);
     }
 }

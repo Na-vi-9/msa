@@ -90,19 +90,9 @@ public class DeliveryManagerService {
     @Transactional(readOnly = true)
     public Page<DeliveryManagerResponse> getDeliveryManagers(
             String condition, String keyword, Pageable pageable) {
-        BooleanBuilder builder = new BooleanBuilder();
 
-        if (condition != null) {
-            builder.and(QDeliveryManager.deliveryManager.type.stringValue().eq(condition));
-        }
-
-        if (keyword != null) {
-            builder.and(QDeliveryManager.deliveryManager.username.containsIgnoreCase(keyword));
-        }
-
-        builder.and(QDeliveryManager.deliveryManager.isDeleted.eq(false));
-
-        return deliveryManagerJpaRepository.findAll(builder, pageable)
+        return deliveryManagerJpaRepository
+                .findWithCondition(condition, keyword, pageable)
                 .map(DeliveryManagerResponse::new);
     }
 
@@ -113,4 +103,5 @@ public class DeliveryManagerService {
 
         return new DeliveryManagerResponse(deliveryManager);
     }
+
 }
