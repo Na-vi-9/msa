@@ -1,5 +1,6 @@
 package com.sparta.msa.company.application.service;
 
+import com.querydsl.core.types.Predicate;
 import com.sparta.msa.company.application.dto.CompanyDto;
 import com.sparta.msa.company.application.dto.CompanyResponse;
 import com.sparta.msa.company.application.dto.CreateCompanyResponse;
@@ -10,7 +11,9 @@ import com.sparta.msa.company.infrastructure.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,11 +75,19 @@ public class CompanyService {
         return CompanyResponse.fromCompany(company);
     }
 
-    public Page<CompanyResponse> findAllCompanies(Pageable pageable) {
+    public PagedModel<CompanyResponse> findAllCompanies(Predicate predicate, Pageable pageable) {
         // TODO: 유저 Role 권한 체크(get 2)
-        Page<Company> companies = companyRepository.findAll(pageable);
+        Page<Company> companyPage = companyRepository.searchCompaniesIsDeletedFalse(predicate, pageable);
 
-        return companies.map(CompanyResponse::fromCompany);
+        return new PagedModel<>(
+                new PageImpl<>(
+                        companyPage.getContent().stream()
+                                .map(CompanyResponse::fromCompany)
+                                .toList(),
+                        companyPage.getPageable(),
+                        companyPage.getTotalElements()
+                )
+        );
     }
 
     public Company validateCompany(UUID companyUUID) {

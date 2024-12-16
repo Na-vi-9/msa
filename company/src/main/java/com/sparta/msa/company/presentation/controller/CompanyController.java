@@ -1,16 +1,21 @@
 package com.sparta.msa.company.presentation.controller;
 
+import com.querydsl.core.types.Predicate;
 import com.sparta.msa.company.application.dto.CompanyResponse;
 import com.sparta.msa.company.application.dto.CreateCompanyResponse;
 import com.sparta.msa.company.application.service.CompanyService;
+import com.sparta.msa.company.domain.entity.Company;
 import com.sparta.msa.company.presentation.dto.CompanyRequest;
 import com.sparta.msa.company.presentation.exception.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -48,8 +53,17 @@ public class CompanyController {
     }
 
     @GetMapping
-    public CommonResponse<Page<CompanyResponse>> getAllCompanies(@PageableDefault Pageable pageable) {
+    public CommonResponse<PagedModel<CompanyResponse>> getAllCompanies(@QuerydslPredicate(root = Company.class) Predicate predicate,
+                                                                       @PageableDefault Pageable pageable) {
+        Pageable adjustedPageable = adjustPageSize(pageable, List.of(10, 30, 50), 10);
 
-        return CommonResponse.ofSuccess(companyService.findAllCompanies(pageable));
+        return CommonResponse.ofSuccess(companyService.findAllCompanies(predicate, adjustedPageable));
+    }
+
+    private Pageable adjustPageSize(Pageable pageable, List<Integer> allowSizes, int defaultSize) {
+        if(!allowSizes.contains(pageable.getPageSize())) {
+            return PageRequest.of(pageable.getPageNumber(), defaultSize, pageable.getSort());
+        }
+        return pageable;
     }
 }
