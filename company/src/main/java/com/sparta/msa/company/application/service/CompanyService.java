@@ -7,7 +7,7 @@ import com.sparta.msa.company.application.dto.CreateCompanyResponse;
 import com.sparta.msa.company.domain.entity.Company;
 import com.sparta.msa.company.domain.exception.CustomException;
 import com.sparta.msa.company.domain.exception.ErrorCode;
-import com.sparta.msa.company.infrastructure.repository.CompanyRepository;
+import com.sparta.msa.company.domain.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

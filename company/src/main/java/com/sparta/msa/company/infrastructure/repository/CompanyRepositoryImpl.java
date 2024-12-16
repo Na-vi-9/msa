@@ -5,6 +5,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.msa.company.domain.entity.Company;
+import com.sparta.msa.company.domain.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +18,16 @@ import static com.sparta.msa.company.domain.entity.QCompany.company;
 
 @Repository
 @RequiredArgsConstructor
-public class CompanyRepositoryImpl implements CompanyRepositoryCustom{
+public class CompanyRepositoryImpl implements CompanyRepository {
 
+    private final CompanyJpaRepository companyJpaRepository;
     private final JPAQueryFactory jpaQueryFactory;
-    private final CompanyRepository companyRepository;
+    private final CompanyJpaRepository companyRepository;
+
+    @Override
+    public Company save(Company company) {
+        return companyJpaRepository.save(company);
+    }
 
     @Override
     public Optional<Company> findByCompanyUUID(UUID companyUUID) {

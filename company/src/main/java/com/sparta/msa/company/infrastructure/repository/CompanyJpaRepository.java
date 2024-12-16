@@ -12,8 +12,7 @@ import org.springframework.data.querydsl.binding.QuerydslBindings;
 
 import java.util.*;
 
-public interface CompanyRepository extends JpaRepository<Company, UUID>,
-        CompanyRepositoryCustom,
+public interface CompanyJpaRepository extends JpaRepository<Company, UUID>,
         QuerydslPredicateExecutor<Company>,
         QuerydslBinderCustomizer<QCompany> {
 
