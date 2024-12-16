@@ -8,10 +8,14 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 @Slf4j
@@ -35,6 +39,7 @@ public class JwtTokenProvider {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
+
     public String createAccessToken(String username, String role) {
         return Jwts.builder()
                 .claim("username", username)
@@ -49,11 +54,14 @@ public class JwtTokenProvider {
     // JWT 토큰을 요청에서 추출
     public String getTokenFromRequest(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
+
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
+
             log.debug("Extracted token: {}", token);
+            return token;
         }
-        return token;
+        return null;
     }
 
     public Claims getClaims(String token) {
