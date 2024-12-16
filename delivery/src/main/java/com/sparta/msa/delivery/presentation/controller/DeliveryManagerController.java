@@ -3,9 +3,11 @@ package com.sparta.msa.delivery.presentation.controller;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerRequest;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerResponse;
 import com.sparta.msa.delivery.application.service.DeliveryManagerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +20,7 @@ public class DeliveryManagerController {
 
     // 배송 담당자 추가
     @PostMapping
-    public ResponseEntity<DeliveryManagerResponse> addDeliveryManager(@RequestBody DeliveryManagerRequest request) {
+    public ResponseEntity<DeliveryManagerResponse> addDeliveryManager(@Valid @RequestBody DeliveryManagerRequest request) {
         DeliveryManagerResponse response = deliveryManagerService.addDeliveryManager(request);
         return ResponseEntity.ok(response);
     }
@@ -34,7 +36,7 @@ public class DeliveryManagerController {
     @PutMapping("/{username}")
     public ResponseEntity<DeliveryManagerResponse> updateDeliveryManager(
             @PathVariable String username,
-            @RequestBody DeliveryManagerRequest request
+            @Valid @RequestBody DeliveryManagerRequest request
     ) {
         DeliveryManagerResponse response = deliveryManagerService.updateDeliveryManager(username, request);
         return ResponseEntity.ok(response);
@@ -52,7 +54,7 @@ public class DeliveryManagerController {
     public ResponseEntity<Page<DeliveryManagerResponse>> getDeliveryManagers(
             @RequestParam(required = false) String condition,
             @RequestParam(required = false) String keyword,
-            Pageable pageable
+            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable
     ) {
         Page<DeliveryManagerResponse> response = deliveryManagerService.getDeliveryManagers(condition, keyword, pageable);
         return ResponseEntity.ok(response);

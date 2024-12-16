@@ -88,17 +88,18 @@ public class DeliveryManagerService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DeliveryManagerResponse> searchDeliveryManagers(
-            Predicate predicate, int page, int size, String sort) {
-        size = (size == 10 || size == 30 || size == 50) ? size : 10;
+    public Page<DeliveryManagerResponse> getDeliveryManagers(
+            String condition, String keyword, Pageable pageable) {
+        BooleanBuilder builder = new BooleanBuilder();
 
-        Sort sorting = sort.equals("updatedAt")
-                ? Sort.by(Sort.Direction.DESC, "updatedAt")
-                : Sort.by(Sort.Direction.DESC, "createdAt");
+        if (condition != null) {
+            builder.and(QDeliveryManager.deliveryManager.type.stringValue().eq(condition));
+        }
 
-        Pageable pageable = PageRequest.of(page, size, sorting);
+        if (keyword != null) {
+            builder.and(QDeliveryManager.deliveryManager.username.containsIgnoreCase(keyword));
+        }
 
-        BooleanBuilder builder = new BooleanBuilder(predicate);
         builder.and(QDeliveryManager.deliveryManager.isDeleted.eq(false));
 
         return deliveryManagerJpaRepository.findAll(builder, pageable)
