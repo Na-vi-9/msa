@@ -1,13 +1,20 @@
 package com.sparta.msa.delivery.application.service;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerRequest;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerResponse;
 import com.sparta.msa.delivery.domain.model.DeliveryManager;
 import com.sparta.msa.delivery.domain.model.DeliveryManagerType;
+import com.sparta.msa.delivery.domain.model.QDeliveryManager;
 import com.sparta.msa.delivery.infrastructure.exception.CustomException;
 import com.sparta.msa.delivery.infrastructure.exception.ErrorCode;
 import com.sparta.msa.delivery.infrastructure.repository.DeliveryManagerJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +29,13 @@ public class DeliveryManagerService {
 
     @Transactional
     public DeliveryManagerResponse addDeliveryManager(DeliveryManagerRequest request) {
-
         if (request.getType() == DeliveryManagerType.COMPANY_MANAGER && request.getHubUUID() == null) {
             throw new IllegalArgumentException("소속 허브 ID는 필수입니다.");
         }
 
         Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder();
-        int nextOrder = (lastOrder != null) ? lastOrder + 1 : 1;
+        lastOrder = (lastOrder != null) ? lastOrder : 0;
+        int nextOrder = lastOrder + 1;
 
         DeliveryManager deliveryManager = DeliveryManager.create(
                 request.getHubUUID(),
@@ -47,7 +54,8 @@ public class DeliveryManagerService {
                 .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_MANAGER_NOT_FOUND));
 
         Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder();
-        deliveryManager.updateDeliveryOrder((lastOrder != null) ? lastOrder + 1 : 1);
+        lastOrder = (lastOrder != null) ? lastOrder : 0;
+        deliveryManager.updateDeliveryOrder(lastOrder + 1);
 
         deliveryManagerJpaRepository.save(deliveryManager);
         return new DeliveryManagerResponse(deliveryManager);
@@ -80,12 +88,11 @@ public class DeliveryManagerService {
     }
 
     @Transactional(readOnly = true)
-    public List<DeliveryManagerResponse> getDeliveryManagers(String condition, String keyword) {
-        return deliveryManagerJpaRepository.search(condition, keyword)
-                .stream()
-                .map(DeliveryManagerResponse::new)
-                .collect(Collectors.toList());
+    public Page<DeliveryManagerResponse> getDeliveryManagers(Predicate predicate, Pageable pageable) {
+        return deliveryManagerJpaRepository.findWithPredicate(predicate, pageable)
+                .map(DeliveryManagerResponse::new);
     }
+
 
     @Transactional(readOnly = true)
     public DeliveryManagerResponse getDeliveryManagerDetail(String username) {
@@ -94,4 +101,5 @@ public class DeliveryManagerService {
 
         return new DeliveryManagerResponse(deliveryManager);
     }
+
 }
