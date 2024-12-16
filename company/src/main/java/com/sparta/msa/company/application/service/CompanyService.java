@@ -1,15 +1,15 @@
 package com.sparta.msa.company.application.service;
 
 import com.querydsl.core.types.Predicate;
-import com.sparta.msa.company.application.dto.CompanyDto;
-import com.sparta.msa.company.application.dto.CompanyResponse;
-import com.sparta.msa.company.application.dto.CreateCompanyResponse;
-import com.sparta.msa.company.application.dto.HubDto;
+import com.sparta.msa.company.application.dto.*;
 import com.sparta.msa.company.domain.entity.Company;
+import com.sparta.msa.company.domain.enums.Role;
 import com.sparta.msa.company.domain.exception.CustomException;
 import com.sparta.msa.company.domain.exception.ErrorCode;
 import com.sparta.msa.company.domain.repository.CompanyRepository;
 import com.sparta.msa.company.infrastructure.clients.HubClient;
+import com.sparta.msa.company.infrastructure.clients.UserClient;
+import com.sparta.msa.company.presentation.dto.UserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,11 +28,17 @@ import java.util.UUID;
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final UserClient userClient;
     private final HubClient hubClient;
 
     @Transactional
-    public CreateCompanyResponse createCompany(CompanyDto request) {
-        // TODO: 유저 Role 권한 체크(create)
+    public CreateCompanyResponse createCompany(CompanyDto request, UserInfo userInfo) {
+        UserDto userDto = validateUserInfo(userInfo);
+
+        if (!(userDto.getRole().equals(Role.MASTER) || userDto.getRole().equals(Role.HUB_MANAGER))) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+
         UUID validateHubUUID = validateManageHubUUID(request.getHubUUID());
 
         Company company = Company.create(
@@ -48,8 +54,13 @@ public class CompanyService {
     }
 
     @Transactional
-    public CompanyResponse updateCompany(UUID companyUUID, CompanyDto request) {
-        // TODO: 유저 Role 권한 체크(update)
+    public CompanyResponse updateCompany(UUID companyUUID, CompanyDto request, UserInfo userInfo) {
+        UserDto userDto = validateUserInfo(userInfo);
+
+        if (userDto.getRole().equals(Role.DELIVERY_MANAGER)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+
         UUID validateHubUUID = validateManageHubUUID(request.getHubUUID());
         Company company = validateCompany(companyUUID);
 
@@ -64,8 +75,13 @@ public class CompanyService {
     }
 
     @Transactional
-    public void deleteCompany(UUID companyUUID) {
-        // TODO: 유저 Role 권한 체크(delete)
+    public void deleteCompany(UUID companyUUID, UserInfo userInfo) {
+        UserDto userDto = validateUserInfo(userInfo);
+
+        if (!(userDto.getRole().equals(Role.MASTER) || userDto.getRole().equals(Role.HUB_MANAGER))) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+
         String deletedManagerName = "master";
 
         Company company = validateCompany(companyUUID);
@@ -109,5 +125,9 @@ public class CompanyService {
         }
 
         return company;
+    }
+
+    private UserDto validateUserInfo(UserInfo userInfo) {
+        return userClient.getUserInfo(userInfo.getToken(), userInfo.getUsername());
     }
 }

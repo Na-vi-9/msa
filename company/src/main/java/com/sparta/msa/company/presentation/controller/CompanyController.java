@@ -6,6 +6,7 @@ import com.sparta.msa.company.application.dto.CreateCompanyResponse;
 import com.sparta.msa.company.application.service.CompanyService;
 import com.sparta.msa.company.domain.entity.Company;
 import com.sparta.msa.company.presentation.dto.CompanyRequest;
+import com.sparta.msa.company.presentation.dto.UserInfo;
 import com.sparta.msa.company.presentation.exception.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -30,20 +31,34 @@ public class CompanyController {
     }
 
     @PostMapping
-    public CommonResponse<CreateCompanyResponse> createCompany(@RequestBody CompanyRequest companyRequest) {
+    public CommonResponse<CreateCompanyResponse> createCompany(@RequestHeader("Authorization") String token,
+                                                               @RequestHeader("X-Username") String username,
+                                                               @RequestHeader("X-Role") String role,
+                                                               @RequestBody CompanyRequest companyRequest) {
 
-        return CommonResponse.ofSuccess(companyService.createCompany(companyRequest.toDto()));
+        UserInfo userInfo = UserInfo.of(token, username, role);
+        return CommonResponse.ofSuccess(companyService.createCompany(companyRequest.toDto(), userInfo));
     }
 
     @PutMapping("/{companyUUID}")
-    public CommonResponse<CompanyResponse> updateCompany(@PathVariable("companyUUID") UUID companyUUID,
+    public CommonResponse<CompanyResponse> updateCompany(@RequestHeader("Authorization") String token,
+                                                         @RequestHeader("X-Username") String username,
+                                                         @RequestHeader("X-Role") String role,
+                                                         @PathVariable("companyUUID") UUID companyUUID,
                                                          @RequestBody CompanyRequest companyRequest) {
-        return CommonResponse.ofSuccess(companyService.updateCompany(companyUUID, companyRequest.toDto()));
+
+        UserInfo userInfo = UserInfo.of(token, username, role);
+        return CommonResponse.ofSuccess(companyService.updateCompany(companyUUID, companyRequest.toDto(), userInfo));
     }
 
     @DeleteMapping("/{companyUUID}")
-    public CommonResponse<Void> deleteCompany(@PathVariable("companyUUID") UUID companyUUID) {
-        companyService.deleteCompany(companyUUID);
+    public CommonResponse<Void> deleteCompany(@RequestHeader("Authorization") String token,
+                                              @RequestHeader("X-Username") String username,
+                                              @RequestHeader("X-Role") String role,
+                                              @PathVariable("companyUUID") UUID companyUUID) {
+
+        UserInfo userInfo = UserInfo.of(token, username, role);
+        companyService.deleteCompany(companyUUID, userInfo);
         return CommonResponse.ofSuccess(null);
     }
 
