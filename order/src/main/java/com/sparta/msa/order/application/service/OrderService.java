@@ -5,12 +5,12 @@ import com.sparta.msa.order.application.dto.OrderListResponse;
 import com.sparta.msa.order.application.dto.OrderRequest;
 import com.sparta.msa.order.application.dto.OrderResponse;
 import com.sparta.msa.order.domain.model.Order;
-import com.sparta.msa.order.exception.CommonResponse;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
 import com.sparta.msa.order.infrastructure.client.ProductClient;
 import com.sparta.msa.order.infrastructure.client.ProductInfo;
 import com.sparta.msa.order.infrastructure.repository.OrderRepository;
+import com.sparta.msa.order.infrastructure.utils.AuthorizationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,55 +25,43 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
-
+    private final AuthorizationUtils authorizationUtils;
 
     // 주문 생성
     @Transactional
-    public OrderResponse createOrder(OrderRequest request) {
-        ProductInfo productResponse = productClient.getProductById(request.getProductUUID());
+    public OrderResponse createOrder(OrderRequest request, String token) {
+        // 토큰에서 username 추출
+        String username = authorizationUtils.extractUsername(token);
 
+        // 제품 정보 확인
+        ProductInfo productResponse = productClient.getProductById(request.getProductUUID());
         if (productResponse == null || productResponse.getQuantity() <= 0) {
             throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
+        // Order 생성
         UUID deliveryUUID = UUID.randomUUID();
+        Order order = Order.createOrder(
+                request,
+                request.getSupplierCompanyUUID(),
+                request.getReceiverCompanyUUID(),
+                request.getProductUUID(),
+                deliveryUUID,
+                username // 생성자를 username으로 설정
+        );
 
-        try {
-            Order order = Order.createOrder(
-                    request,
-                    request.getSupplierCompanyUUID(),
-                    request.getReceiverCompanyUUID(),
-                    request.getProductUUID(),
-                    deliveryUUID
-            );
-            Order savedOrder = orderRepository.save(order);
-            return new OrderResponse(savedOrder.getUuid(), savedOrder.getDeliveryUUID());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new CustomException(ErrorCode.ORDER_CREATION_FAILED);
-        }
+        // 저장
+        orderRepository.save(order);
+
+        // 응답 반환
+        return new OrderResponse(order.getUuid(), order.getDeliveryUUID());
     }
-
-
-
 
     // 주문 목록 조회
     @Transactional(readOnly = true)
     public Page<OrderListResponse> getOrders(String condition, Pageable pageable) {
-        Page<Order> orders = orderRepository.findAllWithCondition(condition, null, pageable);
-
-        if (orders.isEmpty()) {
-            throw new CustomException(ErrorCode.NOT_FOUND);
-        }
-
-        return orders.map(order -> OrderListResponse.builder()
-                .uuid(order.getUuid())
-                .supplierCompanyUUID(order.getSupplierCompanyUUID())
-                .receiverCompanyUUID(order.getReceiverCompanyUUID())
-                .productUUID(order.getProductUUID())
-                .quantity(order.getQuantity())
-                .memo(order.getMemo())
-                .build());
+        return orderRepository.findAllWithCondition(condition, null, pageable)
+                .map(OrderListResponse::new); // Order 객체를 전달
     }
 
     // 주문 단건 조회
@@ -81,47 +69,43 @@ public class OrderService {
     public OrderDetailResponse getOrderDetail(UUID orderUUID) {
         Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
-
-        return OrderDetailResponse.builder()
-                .supplierCompanyUUID(order.getSupplierCompanyUUID())
-                .receiverCompanyUUID(order.getReceiverCompanyUUID())
-                .productUUID(order.getProductUUID())
-                .quantity(order.getQuantity())
-                .memo(order.getMemo())
-                .deliveryUUID(order.getDeliveryUUID())
-                .build();
+        return new OrderDetailResponse(order);
     }
 
-    // 주문 수정
+    // 주문 수정 (권한 검증 및 username 추가)
     @Transactional
-    public OrderDetailResponse updateOrder(UUID orderUUID, OrderRequest request) {
+    public OrderDetailResponse updateOrder(UUID orderUUID, OrderRequest request, String token) {
+        authorizationUtils.validateRole(token, "MASTER", "HUB_MANAGER");
+        String username = authorizationUtils.extractUsername(token);
+
         Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
-        order.updateOrder(
-                request.getSupplierCompanyUUID(),
-                request.getReceiverCompanyUUID(),
-                request.getProductUUID(),
-                request.getQuantity(),
-                request.getMemo(),
-                "system"
-        );
+        order.updateOrder(request.getSupplierCompanyUUID(), request.getReceiverCompanyUUID(),
+                request.getProductUUID(), request.getQuantity(), request.getMemo(), username);
 
-        Order updatedOrder = orderRepository.save(order);
+        return new OrderDetailResponse(order);
+    }
 
-        return OrderDetailResponse.builder()
-                .supplierCompanyUUID(updatedOrder.getSupplierCompanyUUID())
-                .receiverCompanyUUID(updatedOrder.getReceiverCompanyUUID())
-                .productUUID(updatedOrder.getProductUUID())
-                .quantity(updatedOrder.getQuantity())
-                .memo(updatedOrder.getMemo())
-                .deliveryUUID(updatedOrder.getDeliveryUUID())
-                .build();
+    // 주문 삭제 (권한 검증 및 username 추가)
+    @Transactional
+    public void deleteOrder(UUID orderUUID, String token) {
+        authorizationUtils.validateRole(token, "MASTER", "HUB_MANAGER");
+        String username = authorizationUtils.extractUsername(token);
+
+        Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.delete(username);
+        orderRepository.save(order);
     }
 
     // 주문 취소
     @Transactional
-    public CommonResponse<OrderDetailResponse> cancelOrder(UUID orderUUID) {
+    public OrderDetailResponse cancelOrder(UUID orderUUID, String token) {
+        authorizationUtils.validateRole(token, "MASTER", "HUB_MANAGER", "USER");
+        String username = authorizationUtils.extractUsername(token);
+
         Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -129,29 +113,7 @@ public class OrderService {
             throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
         }
 
-        order.cancel("system");
-        Order canceledOrder = orderRepository.save(order);
-
-        OrderDetailResponse response = OrderDetailResponse.builder()
-                .supplierCompanyUUID(canceledOrder.getSupplierCompanyUUID())
-                .receiverCompanyUUID(canceledOrder.getReceiverCompanyUUID())
-                .productUUID(canceledOrder.getProductUUID())
-                .quantity(canceledOrder.getQuantity())
-                .memo(canceledOrder.getMemo())
-                .deliveryUUID(canceledOrder.getDeliveryUUID())
-                .build();
-
-        return CommonResponse.ofSuccess(response);
-    }
-
-    // 주문 삭제
-    @Transactional
-    public void deleteOrder(UUID orderUUID) {
-        Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
-                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
-
-        order.delete("system");
-
-        orderRepository.save(order);
+        order.cancel(username);
+        return new OrderDetailResponse(order);
     }
 }

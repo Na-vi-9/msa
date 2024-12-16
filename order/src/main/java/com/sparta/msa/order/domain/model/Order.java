@@ -1,7 +1,10 @@
 package com.sparta.msa.order.domain.model;
 
 import com.sparta.msa.order.application.dto.OrderRequest;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -63,18 +66,18 @@ public class Order {
     private String deletedBy;
 
     @Builder
-    public static Order createOrder(OrderRequest request, UUID supplierCompanyId, UUID receiverCompanyId, UUID productId, UUID deliveryId) {
+    public static Order createOrder(OrderRequest request, UUID supplierCompanyUUID, UUID receiverCompanyUUID,
+                                    UUID productUUID, UUID deliveryUUID, String createdBy) {
         return Order.builder()
                 .uuid(UUID.randomUUID())
-                .supplierCompanyUUID(supplierCompanyId)
-                .receiverCompanyUUID(receiverCompanyId)
-                .productUUID(productId)
-                .deliveryUUID(deliveryId)
+                .supplierCompanyUUID(supplierCompanyUUID)
+                .receiverCompanyUUID(receiverCompanyUUID)
+                .productUUID(productUUID)
                 .quantity(request.getQuantity())
                 .memo(request.getMemo())
+                .deliveryUUID(deliveryUUID)
+                .createdBy(createdBy)
                 .createdAt(LocalDateTime.now())
-                .createdBy("system") // 임시
-                .updatedBy("system") // 임시
                 .build();
     }
 
@@ -84,18 +87,22 @@ public class Order {
         this.deletedBy = deletedBy;
     }
 
-    public void updateOrder(UUID supplierCompanyUUID, UUID receiverCompanyUUID, UUID productUUID, Integer quantity, String memo, String updatedBy) {
+    public void updateOrder(UUID supplierCompanyUUID, UUID receiverCompanyUUID, UUID productUUID,
+                            Integer quantity, String memo, String updatedBy) {
         this.supplierCompanyUUID = supplierCompanyUUID;
         this.receiverCompanyUUID = receiverCompanyUUID;
         this.productUUID = productUUID;
         this.quantity = quantity;
         this.memo = memo;
-        this.updatedBy = updatedBy;
-        this.updatedAt = LocalDateTime.now();
+        setUpdatedBy(updatedBy);
     }
 
     public void cancel(String updatedBy) {
         this.isCanceled = true;
+        setUpdatedBy(updatedBy);
+    }
+
+    private void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
         this.updatedAt = LocalDateTime.now();
     }
