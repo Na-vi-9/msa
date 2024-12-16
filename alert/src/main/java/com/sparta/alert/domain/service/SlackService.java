@@ -15,10 +15,12 @@ public class SlackService {
     @Value("${slack.token}")
     private String slackToken;
 
+    private final String slackId = "U084RTJMRLP";
+
     public void sendMessage(String slackUserId, String message) throws IOException, SlackApiException {
         Slack slack = Slack.getInstance();
         ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                .channel(slackUserId) // Slack User ID를 채널로 사용
+                .channel(slackId)
                 .text(message)
                 .build();
 

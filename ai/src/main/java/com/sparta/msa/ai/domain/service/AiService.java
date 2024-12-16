@@ -76,11 +76,12 @@ public class AiService {
 
     private void sendToSlack(UUID aiResponseId, String token) {
         try {
-            // 토큰에서 username 추출
-            String username = authorizationUtils.extractUsername(token);
+            String JwtToken = authorizationUtils.extractToken(token);
 
-            // username으로 Slack ID 조회
-            String slackUserId = userFeignClient.getSlackIdByUsername(username);
+            String username = authorizationUtils.getUsernameFromToken(JwtToken);
+
+            // username과 Authorization 헤더로 Slack ID 조회
+            String slackUserId = userFeignClient.getSlackIdByUsername(username, token);
 
             // Slack 알림 전송
             alertFeignClient.sendAlert(aiResponseId, slackUserId);
@@ -88,4 +89,5 @@ public class AiService {
             throw new RuntimeException("Slack 알림 전송 실패", e);
         }
     }
+
 }

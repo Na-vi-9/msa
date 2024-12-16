@@ -8,9 +8,9 @@ import com.sparta.msa.order.exception.ErrorCode;
 import com.sparta.msa.order.infrastructure.client.AiFeignClient;
 import com.sparta.msa.order.infrastructure.client.ProductClient;
 import com.sparta.msa.order.infrastructure.client.ProductInfo;
+import com.sparta.msa.order.infrastructure.client.UserFeignClient;
 import com.sparta.msa.order.infrastructure.repository.OrderRepository;
 import com.sparta.msa.order.infrastructure.utils.AuthorizationUtils;
-import com.sparta.msa.order.presentation.request.AiMessageRequestDto;
 import com.sparta.msa.order.presentation.request.GeminiClientRequestDto;
 import com.sparta.msa.order.presentation.response.AiMessageCreateResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +28,11 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
+    private final UserFeignClient userFeignClient;
     private final AuthorizationUtils authorizationUtils;
     private final AiFeignClient aiFeignClient;
     private final SlackService slackService;
 
-    // 주문 생성
     @Transactional
     public OrderResponse createOrder(OrderRequest request, String token) {
         String username = authorizationUtils.extractUsername(token);
@@ -52,27 +52,25 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        // Slack 알림 전송
-        sendSlackNotification(username, aiResponse.getContent());
+        // Slack 알림 전송 (Slack User ID 조회 추가)
+        String slackUserId = userFeignClient.getSlackIdByUsername(username, token);
+        sendSlackNotification(slackUserId, aiResponse.getContent());
 
         return new OrderResponse(order.getUuid(), order.getDeliveryUUID());
     }
 
-    // 주문 목록 조회
     @Transactional(readOnly = true)
     public Page<OrderListResponse> getOrders(String condition, Pageable pageable) {
         return orderRepository.findAllWithCondition(condition, null, pageable)
                 .map(OrderListResponse::new);
     }
 
-    // 주문 단건 조회
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrderDetail(UUID orderUUID) {
         Order order = findOrderById(orderUUID);
         return new OrderDetailResponse(order);
     }
 
-    // 주문 수정
     @Transactional
     public OrderDetailResponse updateOrder(UUID orderUUID, OrderRequest request, String token) {
         validateUserRole(token, "MASTER", "HUB_MANAGER");
@@ -92,7 +90,6 @@ public class OrderService {
         return new OrderDetailResponse(order);
     }
 
-    // 주문 삭제
     @Transactional
     public void deleteOrder(UUID orderUUID, String token) {
         validateUserRole(token, "MASTER", "HUB_MANAGER");
@@ -104,10 +101,9 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    // 주문 취소
     @Transactional
     public OrderDetailResponse cancelOrder(UUID orderUUID, String token) {
-        validateUserRole(token, "MASTER", "HUB_MANAGER", "USER");
+        validateUserRole(token, "MASTER", "HUB_MANAGER");
 
         Order order = findOrderById(orderUUID);
 
@@ -131,7 +127,9 @@ public class OrderService {
     }
 
     private AiMessageCreateResponseDto generateFinalDeadline(OrderRequest request) {
-        // Gemini 요청 DTO 생성
+        // 로그 추가
+        System.out.println("Generating final deadline with request: " + request);
+
         String prompt = "상품: " + request.getProductUUID() +
                 ", 수량: " + request.getQuantity() +
                 ", 요청사항: " + request.getMemo() +
@@ -140,24 +138,27 @@ public class OrderService {
 
         String additionalMessage = ", 위 내용을 기반으로 몇월 며칠 오전/오후 몇시까지 최종 발송 시한을 도출해줘.";
 
-        // GeminiClientRequestDto 생성
+        // 로그 추가
+        System.out.println("Generated prompt: " + prompt);
+
         GeminiClientRequestDto aiRequest = GeminiClientRequestDto.create(prompt, additionalMessage);
 
-        // 로그로 확인
-        System.out.println("Generated Request: " + aiRequest);
+        // 로그 추가
+        System.out.println("Generated AI Request: " + aiRequest);
 
-        // FeignClient 호출
-        return aiFeignClient.createAiMessage(aiRequest);
+        AiMessageCreateResponseDto response = aiFeignClient.createAiMessage(aiRequest);
+
+        // 로그 추가
+        System.out.println("AI Response: " + response);
+
+        return response;
     }
 
 
-
-
-
-    private void sendSlackNotification(String username, String finalDeadline) {
+    private void sendSlackNotification(String slackUserId, String finalDeadline) {
         try {
-            slackService.sendMessage(username, "최종 발송 시한: " + finalDeadline);
-        } catch (IOException e) {
+            slackService.sendMessage(slackUserId, "최종 발송 시한: " + finalDeadline);
+        } catch (RuntimeException e) {
             throw new RuntimeException("Slack 알림 전송 실패", e);
         }
     }

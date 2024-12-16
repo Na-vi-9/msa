@@ -2,8 +2,9 @@ package com.sparta.alert.domain.service;
 
 import com.sparta.alert.domain.client.AiFeignClient;
 import com.sparta.alert.domain.client.UserFeignClient;
-import com.sparta.alert.presentation.response.AiMessageCreateResponseDto;
+import com.sparta.alert.domain.service.SlackService;
 import com.sparta.alert.infrastructure.utils.AuthorizationUtils;
+import com.sparta.alert.presentation.response.AiMessageCreateResponseDto;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -27,20 +28,23 @@ public class AlertService {
     }
 
     public void sendFinalDeadline(UUID aiResponseId, String token) {
-        // 토큰에서 username 추출
-        String username = authorizationUtils.extractUsername(token);
-
-        // username을 기반으로 Slack ID 조회
-        String slackUserId = userFeignClient.getSlackIdByUsername(username);
-
-        // AI 응답 가져오기
-        AiMessageCreateResponseDto responseDto = aiFeignClient.getAiResponseById(aiResponseId);
-
-        // Slack에 메시지 전송
         try {
+            String username = authorizationUtils.extractUsername(token);
+            System.out.println("Extracted Username: " + username);
+
+            if (username == null || username.trim().isEmpty()) {
+                throw new RuntimeException("Username is null or empty after extracting from token.");
+            }
+
+            String slackUserId = userFeignClient.getSlackIdByUsername(username, token);
+            System.out.println("Slack User ID: " + slackUserId);
+
+            AiMessageCreateResponseDto responseDto = aiFeignClient.getAiResponseById(aiResponseId);
             slackService.sendMessage(slackUserId, responseDto.getContent());
         } catch (Exception e) {
-            throw new RuntimeException("Error sending message to Slack", e);
+            System.err.println("Error in sendFinalDeadline: " + e.getMessage());
+            throw new RuntimeException("Error occurred during Feign Client call", e);
         }
+
     }
 }

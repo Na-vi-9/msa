@@ -1,6 +1,7 @@
 package com.sparta.alert.presentation.controller;
 
 import com.sparta.alert.domain.service.AlertService;
+import com.sparta.alert.presentation.request.AiRequestDto;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -16,12 +17,16 @@ public class SlackController {
     }
 
     @PostMapping("/send-slack")
-    public String sendSlackMessage(@RequestParam UUID aiResponseId,
+    public String sendSlackMessage(@RequestBody AiRequestDto requestDto,
                                    @RequestHeader("Authorization") String token) {
         try {
-            alertService.sendFinalDeadline(aiResponseId, token);
+            System.out.println("Received Request Body: " + requestDto);
+            System.out.println("Received Authorization Header: " + token);
+
+            alertService.sendFinalDeadline(requestDto.getAiResponseId(), token);
             return "Slack DM sent successfully!";
         } catch (Exception e) {
+            e.printStackTrace();
             return "Error occurred while sending Slack DM: " + e.getMessage();
         }
     }

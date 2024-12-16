@@ -1,27 +1,44 @@
 package com.sparta.msa.order.infrastructure.utils;
 
-import lombok.RequiredArgsConstructor;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class AuthorizationUtils {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    @Value("${jwt.secret.key}")
+    private String jwtSecretKey;
 
-    // 권한 검증
-    public void validateRole(String token, String... allowedRoles) {
-        String role = jwtTokenProvider.getRoleFromToken(token);
-        for (String allowedRole : allowedRoles) {
-            if (allowedRole.equals(role)) {
-                return;
-            }
+    public String extractUsername(String token) {
+        Claims claims = getClaims(token);
+
+        // username 필드가 있으면 가져오고, 없으면 subject 반환
+        String username = claims.get("username", String.class);
+        if (username == null || username.trim().isEmpty()) {
+            username = claims.getSubject();
         }
-        throw new IllegalArgumentException("접근 권한이 없습니다.");
+        return username;
     }
 
-    // 토큰에서 username 추출
-    public String extractUsername(String token) {
-        return jwtTokenProvider.getUsernameFromToken(token);
+    public Claims getClaims(String token) {
+        String jwtToken = extractToken(token); // Bearer 제거 및 공백 처리
+        return Jwts.parserBuilder()
+                .setSigningKey(jwtSecretKey)
+                .build()
+                .parseClaimsJws(jwtToken)
+                .getBody();
+    }
+
+    public String extractToken(String authorizationHeader) {
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7).trim();
+        }
+        throw new IllegalArgumentException("Invalid Authorization header format");
+    }
+
+    public String getUsernameFromToken(String token) {
+        return extractUsername(token);
     }
 }
