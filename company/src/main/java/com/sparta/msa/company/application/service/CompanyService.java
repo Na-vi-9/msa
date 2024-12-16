@@ -4,10 +4,12 @@ import com.querydsl.core.types.Predicate;
 import com.sparta.msa.company.application.dto.CompanyDto;
 import com.sparta.msa.company.application.dto.CompanyResponse;
 import com.sparta.msa.company.application.dto.CreateCompanyResponse;
+import com.sparta.msa.company.application.dto.HubDto;
 import com.sparta.msa.company.domain.entity.Company;
 import com.sparta.msa.company.domain.exception.CustomException;
 import com.sparta.msa.company.domain.exception.ErrorCode;
 import com.sparta.msa.company.domain.repository.CompanyRepository;
+import com.sparta.msa.company.infrastructure.clients.HubClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,15 +28,17 @@ import java.util.UUID;
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final HubClient hubClient;
 
     @Transactional
     public CreateCompanyResponse createCompany(CompanyDto request) {
         // TODO: 유저 Role 권한 체크(create)
+        UUID validateHubUUID = validateManageHubUUID(request.getHubUUID());
 
         Company company = Company.create(
                 request.getName(),
                 request.getType(),
-                request.getHubUUID(),
+                validateHubUUID,
                 request.getAddress()
         );
 
@@ -46,12 +50,13 @@ public class CompanyService {
     @Transactional
     public CompanyResponse updateCompany(UUID companyUUID, CompanyDto request) {
         // TODO: 유저 Role 권한 체크(update)
+        UUID validateHubUUID = validateManageHubUUID(request.getHubUUID());
         Company company = validateCompany(companyUUID);
 
         company.update(
                 request.getName(),
                 request.getType(),
-                request.getHubUUID(),
+                validateHubUUID,
                 request.getAddress()
         );
 
@@ -90,7 +95,12 @@ public class CompanyService {
         );
     }
 
-    public Company validateCompany(UUID companyUUID) {
+    private UUID validateManageHubUUID(UUID hubUUID) {
+        HubDto hubDto = hubClient.getHub(hubUUID);
+        return hubDto.getHubUUID();
+    }
+
+    private Company validateCompany(UUID companyUUID) {
         Company company = companyRepository.findByCompanyUUID(companyUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_COMPANY, companyUUID.toString()));
 
