@@ -25,7 +25,6 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-hub/src/main/resources/application-secret.yml
 
 ### NetBeans ###
 /nbproject/private/
@@ -36,5 +35,3 @@ hub/src/main/resources/application-secret.yml
 
 ### VS Code ###
 .vscode/
-.idea/
-.DS_Store
