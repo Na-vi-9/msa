@@ -1,6 +1,7 @@
 package com.sparta.msa.delivery.application.service;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerRequest;
 import com.sparta.msa.delivery.application.dto.deliveryManager.DeliveryManagerResponse;
 import com.sparta.msa.delivery.domain.model.DeliveryManager;
@@ -32,7 +33,8 @@ public class DeliveryManagerService {
             throw new IllegalArgumentException("소속 허브 ID는 필수입니다.");
         }
 
-        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder().orElse(0);
+        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder();
+        lastOrder = (lastOrder != null) ? lastOrder : 0;
         int nextOrder = lastOrder + 1;
 
         DeliveryManager deliveryManager = DeliveryManager.create(
@@ -51,7 +53,8 @@ public class DeliveryManagerService {
         DeliveryManager deliveryManager = deliveryManagerJpaRepository.findTopByIsDeletedFalseOrderByDeliveryOrderAsc()
                 .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_MANAGER_NOT_FOUND));
 
-        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder().orElse(0);
+        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder();
+        lastOrder = (lastOrder != null) ? lastOrder : 0;
         deliveryManager.updateDeliveryOrder(lastOrder + 1);
 
         deliveryManagerJpaRepository.save(deliveryManager);
@@ -85,24 +88,8 @@ public class DeliveryManagerService {
     }
 
     @Transactional(readOnly = true)
-    public List<DeliveryManagerResponse> getDeliveryManagers(String condition, String keyword) {
-        return deliveryManagerJpaRepository.search(condition, keyword)
-                .stream()
-                .map(DeliveryManagerResponse::new)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public DeliveryManagerResponse getDeliveryManagerDetail(String username) {
-        DeliveryManager deliveryManager = deliveryManagerJpaRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송 담당자입니다."));
-
-        return new DeliveryManagerResponse(deliveryManager);
-    }
-
-    @Transactional(readOnly = true)
     public Page<DeliveryManagerResponse> searchDeliveryManagers(
-            com.querydsl.core.types.Predicate predicate, int page, int size, String sort) {
+            Predicate predicate, int page, int size, String sort) {
         size = (size == 10 || size == 30 || size == 50) ? size : 10;
 
         Sort sorting = sort.equals("updatedAt")
@@ -118,6 +105,11 @@ public class DeliveryManagerService {
                 .map(DeliveryManagerResponse::new);
     }
 
+    @Transactional(readOnly = true)
+    public DeliveryManagerResponse getDeliveryManagerDetail(String username) {
+        DeliveryManager deliveryManager = deliveryManagerJpaRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송 담당자입니다."));
 
-
+        return new DeliveryManagerResponse(deliveryManager);
+    }
 }
