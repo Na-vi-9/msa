@@ -29,13 +29,7 @@ public class ProductService {
 
     // 상품 목록 조회
     public Page<ProductResponse> getProducts(String condition, String keyword, Pageable pageable) {
-        Page<Product> products = productRepository.findAllWithCondition(condition, keyword, pageable);
-
-        if (products.isEmpty()) {
-            throw new CustomException(ErrorCode.NOT_FOUND);
-        }
-
-        return products.map(ProductResponse::new);
+        return productRepository.findProductsWithCondition(condition, keyword, pageable);
     }
 
     // 상품 단일 조회

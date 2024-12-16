@@ -29,9 +29,10 @@ public class OrderController {
 
     // 주문 목록 조회
     @GetMapping
-    public ResponseEntity<Page<OrderListResponse>> getOrders(@RequestParam(required = false) String condition,
+    public ResponseEntity<Page<OrderListResponse>> getOrders(@RequestParam(value = "condition", required = false) String condition,
+                                                             @RequestParam(value = "keyword", required = false) String keyword,
                                                              Pageable pageable) {
-        return ResponseEntity.ok(orderService.getOrders(condition, pageable));
+        return ResponseEntity.ok(orderService.getOrders(condition, keyword, pageable));
     }
 
     // 주문 단건 조회

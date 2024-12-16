@@ -1,5 +1,6 @@
 package com.sparta.msa.product.application.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import com.sparta.msa.product.domain.model.Product;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class ProductResponse {
     private UUID companyUUID;
     private UUID hubUUID;
 
+    @QueryProjection
     public ProductResponse(Product product) {
         this.productUUID = product.getUuid();
         this.name = product.getName();

@@ -3,6 +3,7 @@ package com.sparta.msa.product.domain.model;
 import com.sparta.msa.product.application.dto.CreateProductRequest;
 import com.sparta.msa.product.application.dto.UpdateProductRequest;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "p_product")
 public class Product {
@@ -68,6 +70,7 @@ public class Product {
         this.quantity = quantity;
         this.createdBy = createdBy;
     }
+
 
     public static Product create(CreateProductRequest request) {
         return Product.builder()

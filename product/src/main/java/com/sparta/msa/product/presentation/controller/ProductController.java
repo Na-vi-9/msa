@@ -30,11 +30,12 @@ public class ProductController {
     // 상품 목록 조회
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getProducts(
-            @RequestParam(required = false) String condition,
-            @RequestParam(required = false) String keyword,
-            Pageable pageable) {
-        Page<ProductResponse> response = productService.getProducts(condition, keyword, pageable);
-        return ResponseEntity.ok(response);
+            @RequestParam(value = "condition", required = false) String condition,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            Pageable pageable
+    ){
+       Page<ProductResponse> responses = productService.getProducts(condition, keyword, pageable);
+       return ResponseEntity.ok(responses);
     }
 
     // 상품 단일 조회
