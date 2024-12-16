@@ -19,5 +19,6 @@ public class AiResponse {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "answer", columnDefinition = "TEXT")
     private String answer;
 }

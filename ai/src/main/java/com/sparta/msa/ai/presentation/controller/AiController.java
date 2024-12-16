@@ -22,8 +22,11 @@ public class AiController {
     }
 
     @PostMapping("/ai")
-    public ResponseEntity<AiMessageCreateResponseDto> createAiMessage(@RequestBody AiMessageRequestDto requestDto) {
-        AiMessageCreateResponseDto responseDto = aiService.createAiMessage(requestDto);
+    public ResponseEntity<AiMessageCreateResponseDto> createAiMessage(
+            @RequestBody AiMessageRequestDto requestDto,
+            @RequestHeader("Authorization") String token) {
+
+        AiMessageCreateResponseDto responseDto = aiService.createAiMessage(requestDto, token);
         return ResponseEntity.ok(responseDto);
     }
 
