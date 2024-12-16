@@ -1,15 +1,12 @@
 package com.sparta.msa.order.exception;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public class CustomException extends RuntimeException {
-    private final ErrorCode errorCode;
-    private final String message; // 동적 메시지
 
-    public CustomException(ErrorCode errorCode, Object... args) {
-        super(String.format(errorCode.getDescription(), args));
-        this.errorCode = errorCode;
-        this.message = super.getMessage();
-    }
+    private final ErrorCode errorCode;
+
 }
