@@ -26,7 +26,7 @@ public class HubService {
     @Transactional
     @CacheEvict(cacheNames = "hubsCache", allEntries = true)
     public CreateHubResponse createHub(HubDto request) {
-        // 유저 검증 메서드 호출 필요(테스트를 위해 임시 값 사용)
+        // TODO: 유저 검증 메서드 호출 필요(테스트를 위해 임시 값 사용)
         String validateManagerId = "master";
 
         Hub hub = Hub.create(
@@ -48,8 +48,7 @@ public class HubService {
         // 유저 검증 메서드 호출 필요
         String validateManagerId = "master";
 
-        Hub hub = hubRepository.findByHubUUID(hubUUID)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_HUB, hubUUID.toString()));
+        Hub hub = validateHub(hubUUID);
 
         hub.update(
                 request.getName(),
@@ -64,13 +63,22 @@ public class HubService {
     @Transactional
     @CacheEvict(cacheNames = "hubCache", key = "#hubUUID")
     public void deleteHub(UUID hubUUID) {
-        // 삭제자 정보 - 임시 데이터 사용 추후 User 서비스 결합 후 삭제하는 관리자 id 추가
+        // TODO: 삭제자 정보 - 임시 데이터 사용 추후 User 서비스 결합 후 삭제하는 관리자 id 추가
         String deletedManagerId = "master";
 
-        // Soft Delete 방식 1
+        Hub hub = validateHub(hubUUID);
+
+        hub.markDeleted(deletedManagerId);
+    }
+
+    public Hub validateHub(UUID hubUUID) {
         Hub hub = hubRepository.findByHubUUID(hubUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_HUB, hubUUID.toString()));
 
-        hub.markDeleted(deletedManagerId);
+        if (hub.getIsDeleted().equals(true)) {
+            throw new CustomException(ErrorCode.DELETED_HUB, hubUUID.toString());
+        }
+
+        return hub;
     }
 }

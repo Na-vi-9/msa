@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface HubQueryRepositoryCustom {
 
-    Optional<Hub> findByUUID(UUID hubUUID);
+    Optional<Hub> findByHubUUIDIsDeletedFalse(UUID hubUUID);
 }

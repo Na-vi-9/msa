@@ -12,15 +12,15 @@ public class HubDto implements Serializable {
     private String address;
     private Double latitude;
     private Double longitude;
-    private String managerId;
+    private String managerName;
 
-    public static HubDto create(String name, String address, Double latitude, Double longitude, String managerId) {
+    public static HubDto of(String name, String address, Double latitude, Double longitude, String managerName) {
         return HubDto.builder()
                 .name(name)
                 .address(address)
                 .latitude(latitude)
                 .longitude(longitude)
-                .managerId(managerId)
+                .managerName(managerName)
                 .build();
     }
 }

@@ -58,7 +58,7 @@ public class GetHubsResponse implements Serializable{
             private String hubAddress;
             private Double latitude;
             private Double longitude;
-            private String managerId;
+            private String hubManagerName;
 
             public static List<Hub> from(List<com.sparta.msa.hub.domain.entity.Hub> hubList) {
                 return hubList.stream()
@@ -73,7 +73,7 @@ public class GetHubsResponse implements Serializable{
                         .hubAddress(hub.getAddress())
                         .latitude(hub.getLatitude())
                         .longitude(hub.getLongitude())
-                        .managerId(hub.getManagerId())
+                        .hubManagerName(hub.getManagerName())
                         .build();
             }
         }

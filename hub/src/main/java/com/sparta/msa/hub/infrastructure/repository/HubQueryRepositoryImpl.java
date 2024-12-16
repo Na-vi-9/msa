@@ -18,7 +18,7 @@ public class HubQueryRepositoryImpl implements HubQueryRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Optional<Hub> findByUUID(UUID hubUUID) {
+    public Optional<Hub> findByHubUUIDIsDeletedFalse(UUID hubUUID) {
         JPAQuery<Hub> query = jpaQueryFactory
                 .select(hub)
                 .from(hub)
