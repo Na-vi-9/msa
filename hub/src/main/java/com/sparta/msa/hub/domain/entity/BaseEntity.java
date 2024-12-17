@@ -21,7 +21,7 @@ public abstract class BaseEntity {
     private LocalDateTime createdAt;
 
     @CreatedBy
-    @Column(name = "create_by", nullable = false, length = 10, updatable = false)
+    @Column(name = "created_by", nullable = false, length = 10, updatable = false)
     private String createdBy;
 
     @LastModifiedDate
