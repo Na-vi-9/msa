@@ -1,10 +1,7 @@
 package com.sparta.msa.order.domain.model;
 
 import com.sparta.msa.order.application.dto.OrderRequest;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -51,7 +48,7 @@ public class Order {
     private LocalDateTime createdAt;
 
     @Column(name = "created_by", nullable = false)
-    private String createdBy = "system";
+    private String createdBy;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -65,9 +62,12 @@ public class Order {
     @Column(name = "deleted_by")
     private String deletedBy;
 
+    @Column(length = 500)
+    private String finalDeadline; // AI에서 생성된 최종 발송 시한
+
     @Builder
     public static Order createOrder(OrderRequest request, UUID supplierCompanyUUID, UUID receiverCompanyUUID,
-                                    UUID productUUID, UUID deliveryUUID, String createdBy) {
+                                    UUID productUUID, UUID deliveryUUID, String createdBy, String finalDeadline) {
         return Order.builder()
                 .uuid(UUID.randomUUID())
                 .supplierCompanyUUID(supplierCompanyUUID)
@@ -78,6 +78,7 @@ public class Order {
                 .deliveryUUID(deliveryUUID)
                 .createdBy(createdBy)
                 .createdAt(LocalDateTime.now())
+                .finalDeadline(finalDeadline) // AI 발송 시한 설정
                 .build();
     }
 

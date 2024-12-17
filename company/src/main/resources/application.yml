@@ -1,0 +1,56 @@
+server:
+  port: 19093
+
+spring:
+  config:
+    import: classpath:/application-secret.yml
+  profiles:
+    default: local
+  application:
+    name: company
+  datasource:
+    url: ${database.url}
+    username: ${database.username}
+    password: ${database.password}
+  jpa:
+    show-sql: true
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+
+
+# 추후 사용할 zipkin 및 resilience4j 설정
+management:
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+#
+#resilience4j:
+#  circuitbreaker:
+#    configs:
+#      default:
+#        registerHealthIndicator: true
+#        slidingWindowType: COUNT_BASED
+#        slidingWindowSize: 5
+#        minimumNumberOfCalls: 5
+#        slowCallRateThreshold: 100
+#        slowCallDurationThreshold: 60000
+#        failureRateThreshold: 50
+#        permittedNumberOfCallsInHalfOpenState: 3
+#        waitDurationInOpenState: 20s

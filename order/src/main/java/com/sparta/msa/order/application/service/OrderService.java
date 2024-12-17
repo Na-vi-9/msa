@@ -7,6 +7,7 @@ import com.sparta.msa.order.application.dto.OrderResponse;
 import com.sparta.msa.order.domain.model.Order;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
+import com.sparta.msa.order.infrastructure.client.CompanyClient;
 import com.sparta.msa.order.infrastructure.client.ProductClient;
 import com.sparta.msa.order.infrastructure.client.ProductInfo;
 import com.sparta.msa.order.infrastructure.repository.OrderRepository;
@@ -25,21 +26,28 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
+    private final CompanyClient companyClient;
     private final AuthorizationUtils authorizationUtils;
 
-    // 주문 생성
+    // 주문 생성 (COMMON)
     @Transactional
     public OrderResponse createOrder(OrderRequest request, String token) {
-        // 토큰에서 username 추출
         String username = authorizationUtils.extractUsername(token);
 
         // 제품 정보 확인
-        ProductInfo productResponse = productClient.getProductById(request.getProductUUID());
-        if (productResponse == null || productResponse.getQuantity() <= 0) {
+        ProductInfo product = productClient.getProductById(request.getProductUUID());
+        if (product == null || product.getQuantity() < request.getQuantity()) {
             throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        // Order 생성
+        // 회사 존재 여부 확인
+        validateCompanyExists(request.getSupplierCompanyUUID());
+        validateCompanyExists(request.getReceiverCompanyUUID());
+
+        // 상품 수량 감소
+        productClient.updateProductQuantity(request.getProductUUID(), -request.getQuantity(), token);
+
+        // 주문 생성
         UUID deliveryUUID = UUID.randomUUID();
         Order order = Order.createOrder(
                 request,
@@ -47,23 +55,21 @@ public class OrderService {
                 request.getReceiverCompanyUUID(),
                 request.getProductUUID(),
                 deliveryUUID,
-                username // 생성자를 username으로 설정
+                username
         );
 
-        // 저장
         orderRepository.save(order);
-
-        // 응답 반환
         return new OrderResponse(order.getUuid(), order.getDeliveryUUID());
     }
 
-    // 주문 목록 조회
+    // 주문 목록 조회 (COMMON)
     @Transactional(readOnly = true)
     public Page<OrderListResponse> getOrders(String condition, String keyword, Pageable pageable) {
         return orderRepository.findProductsWithCondition(condition, keyword, pageable);
+    
     }
 
-    // 주문 단건 조회
+    // 주문 단건 조회 (COMMON)
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrderDetail(UUID orderUUID) {
         Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
@@ -71,7 +77,7 @@ public class OrderService {
         return new OrderDetailResponse(order);
     }
 
-    // 주문 수정 (권한 검증 및 username 추가)
+    // 주문 수정 (MASTER, HUB_MANAGER)
     @Transactional
     public OrderDetailResponse updateOrder(UUID orderUUID, OrderRequest request, String token) {
         authorizationUtils.validateRole(token, "MASTER", "HUB_MANAGER");
@@ -86,7 +92,7 @@ public class OrderService {
         return new OrderDetailResponse(order);
     }
 
-    // 주문 삭제 (권한 검증 및 username 추가)
+    // 주문 삭제 (MASTER, HUB_MANAGER)
     @Transactional
     public void deleteOrder(UUID orderUUID, String token) {
         authorizationUtils.validateRole(token, "MASTER", "HUB_MANAGER");
@@ -99,20 +105,9 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    // 주문 취소
-    @Transactional
-    public OrderDetailResponse cancelOrder(UUID orderUUID, String token) {
-        authorizationUtils.validateRole(token, "MASTER", "HUB_MANAGER", "USER");
-        String username = authorizationUtils.extractUsername(token);
-
-        Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
-                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
-
-        if (order.isCanceled()) {
-            throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
+    private void validateCompanyExists(UUID companyUUID) {
+        if (!companyClient.checkCompanyExists(companyUUID)) {
+            throw new CustomException(ErrorCode.COMPANY_NOT_FOUND);
         }
-
-        order.cancel(username);
-        return new OrderDetailResponse(order);
     }
 }

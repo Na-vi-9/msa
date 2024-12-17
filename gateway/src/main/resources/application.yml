@@ -36,11 +36,11 @@ spring:
         - id: company
           uri: lb://company
           predicates:
-            - Path=/company/**
+            - Path=/companies/**
         - id: hub
           uri: lb://hub
           predicates:
-            - Path=/hub/**
+            - Path=/hubs/**
         - id: users
           uri: lb://users
           predicates:
