@@ -28,7 +28,7 @@ public class DeliveryService {
 
     @Transactional
     public CreateDeliveryResponse createDelivery(CreateDeliveryDto request) {
-        String companyDeliveryManagerUsername = deliveryManagerService.assignDeliveryManager().getUsername();
+        String companyDeliveryManagerUsername = deliveryManagerService.assignCompanyDeliveryManager(request.getDepartureHubUUID()).getUsername();
 
         Delivery delivery = deliveryRepository.save(
                 Delivery.create(request.getOrderUUID(), request.getStatus(), request.getDepartureHubUUID(),
