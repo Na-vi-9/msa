@@ -1,5 +1,6 @@
 package com.sparta.msa.order.application.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import com.sparta.msa.order.domain.model.Order;
 import lombok.Getter;
 
@@ -15,6 +16,7 @@ public class OrderListResponse {
     private final Integer quantity;
     private final String memo;
 
+    @QueryProjection
     public OrderListResponse(UUID uuid, UUID supplierCompanyUUID, UUID receiverCompanyUUID,
                              UUID productUUID, Integer quantity, String memo) {
         this.uuid = uuid;
@@ -33,4 +35,5 @@ public class OrderListResponse {
         this.quantity = order.getQuantity();
         this.memo = order.getMemo();
     }
+
 }

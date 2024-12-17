@@ -64,9 +64,9 @@ public class OrderService {
 
     // 주문 목록 조회 (COMMON)
     @Transactional(readOnly = true)
-    public Page<OrderListResponse> getOrders(String condition, Pageable pageable) {
-        return orderRepository.findAllWithCondition(condition, null, pageable)
-                .map(OrderListResponse::new);
+    public Page<OrderListResponse> getOrders(String condition, String keyword, Pageable pageable) {
+        return orderRepository.findProductsWithCondition(condition, keyword, pageable);
+    
     }
 
     // 주문 단건 조회 (COMMON)
