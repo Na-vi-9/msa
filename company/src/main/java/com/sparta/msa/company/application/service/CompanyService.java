@@ -143,4 +143,8 @@ public class CompanyService {
 
         throw new CustomException(ErrorCode.USER_NAME_MISMATCH);
     }
+
+    public boolean existsByCompanyUUID(UUID companyUUID) {
+        return companyRepository.findByCompanyUUID(companyUUID).isPresent();
+    }
 }
