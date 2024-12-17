@@ -56,3 +56,4 @@ https://github.com/Na-vi-9/msa/wiki
 ### 🛠 ERD
 
 ### 🛠 프로젝트 아키텍처
+![아키텍처](https://github.com/user-attachments/assets/adbffc08-5f57-4e08-b099-2b7b1903ef42)
