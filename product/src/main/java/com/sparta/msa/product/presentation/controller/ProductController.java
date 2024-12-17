@@ -59,4 +59,14 @@ public class ProductController {
         productService.deleteProduct(productUUID);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{productUUID}/quantity")
+    public ResponseEntity<Void> updateProductQuantity(@PathVariable UUID productUUID,
+                                                      @RequestParam("quantityChange") int quantityChange,
+                                                      @RequestHeader("Authorization") String token) {
+        // 권한 검증 로직 확인 필요
+        productService.updateProductQuantity(productUUID, quantityChange);
+        return ResponseEntity.ok().build();
+    }
+
 }
