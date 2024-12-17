@@ -54,6 +54,7 @@ https://github.com/Na-vi-9/msa/wiki
 <img src="https://img.shields.io/badge/git-F05032?style=flat-square&logo=git&logoColor=white"/> <img src="https://img.shields.io/badge/github-181717?style=flat-square&logo=github&logoColor=white"/> <img src="https://img.shields.io/badge/Notion-000000?style=flat-square&logo=Notion&logoColor=white"/>
 
 ### 🛠 ERD
+![대규모 AI 시스템 설계](https://github.com/user-attachments/assets/ef4e6d7d-09e8-44b4-b17f-2159ce987214)
 
 ### 🛠 프로젝트 아키텍처
 ![아키텍처](https://github.com/user-attachments/assets/adbffc08-5f57-4e08-b099-2b7b1903ef42)
