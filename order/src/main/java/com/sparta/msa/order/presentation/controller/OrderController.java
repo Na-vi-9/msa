@@ -20,27 +20,27 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    // 주문 생성
+    // 주문 생성 (COMMON)
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request,
                                                      @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(orderService.createOrder(request, token));
     }
 
-    // 주문 목록 조회
+    // 주문 목록 조회 (COMMON)
     @GetMapping
     public ResponseEntity<Page<OrderListResponse>> getOrders(@RequestParam(required = false) String condition,
                                                              Pageable pageable) {
         return ResponseEntity.ok(orderService.getOrders(condition, pageable));
     }
 
-    // 주문 단건 조회
+    // 주문 단건 조회 (COMMON)
     @GetMapping("/{orderUUID}")
     public ResponseEntity<OrderDetailResponse> getOrderDetail(@PathVariable UUID orderUUID) {
         return ResponseEntity.ok(orderService.getOrderDetail(orderUUID));
     }
 
-    // 주문 수정
+    // 주문 수정 (MASTER, HUB_MANAGER)
     @PutMapping("/{orderUUID}")
     public ResponseEntity<OrderDetailResponse> updateOrder(@PathVariable UUID orderUUID,
                                                            @RequestBody OrderRequest request,
@@ -48,18 +48,11 @@ public class OrderController {
         return ResponseEntity.ok(orderService.updateOrder(orderUUID, request, token));
     }
 
-    // 주문 삭제
+    // 주문 삭제 (MASTER, HUB_MANAGER)
     @DeleteMapping("/{orderUUID}")
     public ResponseEntity<Void> deleteOrder(@PathVariable UUID orderUUID,
                                             @RequestHeader("Authorization") String token) {
         orderService.deleteOrder(orderUUID, token);
         return ResponseEntity.noContent().build();
-    }
-
-    // 주문 취소
-    @PutMapping("/{orderUUID}/cancel")
-    public ResponseEntity<OrderDetailResponse> cancelOrder(@PathVariable UUID orderUUID,
-                                                           @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(orderService.cancelOrder(orderUUID, token));
     }
 }
