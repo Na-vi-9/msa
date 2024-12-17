@@ -20,17 +20,17 @@ public abstract class BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
-//    @CreatedBy
-//    @Column(name = "create_by", nullable = false, length = 10, updatable = false)
-//    private String createdBy;
+    @CreatedBy
+    @Column(name = "created_by", nullable = false, length = 10, updatable = false)
+    private String createdBy;
 
     @LastModifiedDate
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
-//    @LastModifiedBy
-//    @Column(name = "updated_by", length = 10)
-//    private String updatedBy;
+    @LastModifiedBy
+    @Column(name = "updated_by", length = 10)
+    private String updatedBy;
 
 }
