@@ -7,8 +7,7 @@ import java.util.UUID;
 
 @Getter
 public class DeliveryManagerRequest {
-    private String username;
     private UUID hubUUID;
     private DeliveryManagerType type;
-    private int deliveryOrder;
+    private String username;
 }
