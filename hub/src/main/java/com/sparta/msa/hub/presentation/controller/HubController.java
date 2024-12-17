@@ -4,6 +4,7 @@ import com.sparta.msa.hub.application.dto.CreateHubResponse;
 import com.sparta.msa.hub.application.dto.HubResponse;
 import com.sparta.msa.hub.application.service.HubService;
 import com.sparta.msa.hub.presentation.dto.HubRequest;
+import com.sparta.msa.hub.presentation.dto.UserInfoRequest;
 import com.sparta.msa.hub.presentation.exception.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -21,22 +22,35 @@ public class HubController {
         this.hubService = hubService;
     }
 
-    // 추후 @PreAuth 권한 검증 추가 - 현재 테스트를 위해 미사용(Security 미 추가)
     @PostMapping
-    public CommonResponse<CreateHubResponse> createHub(@RequestBody HubRequest hubRequest) {
-        // 주문 생성 시 발생하는 예외 처리 추가
-        return CommonResponse.ofSuccess(hubService.createHub(hubRequest.toDTO()));
+    public CommonResponse<CreateHubResponse> createHub(@RequestHeader("Authorization") String token,
+                                                       @RequestHeader("X-Username") String username,
+                                                       @RequestHeader("X-Role") String role,
+                                                       @RequestBody HubRequest hubRequest) {
+
+        UserInfoRequest userInfo = UserInfoRequest.of(token, username, role);
+        return CommonResponse.ofSuccess(hubService.createHub(hubRequest.toDTO(), userInfo));
     }
 
     @PutMapping("/{hubUUID}")
-    public CommonResponse<HubResponse> updateHub(@PathVariable("hubUUID") UUID hubUUID,
+    public CommonResponse<HubResponse> updateHub(@RequestHeader("Authorization") String token,
+                                                 @RequestHeader("X-Username") String username,
+                                                 @RequestHeader("X-Role") String role,
+                                                 @PathVariable("hubUUID") UUID hubUUID,
                                                  @RequestBody HubRequest hubRequest) {
-        return CommonResponse.ofSuccess(hubService.updateHub(hubUUID, hubRequest.toDTO()));
+
+        UserInfoRequest userInfo = UserInfoRequest.of(token, username, role);
+        return CommonResponse.ofSuccess(hubService.updateHub(hubUUID, hubRequest.toDTO(), userInfo));
     }
 
     @DeleteMapping("/{hubUUID}")
-    public CommonResponse<Void> deleteHub(@PathVariable("hubUUID") UUID hubUUID) {
-        hubService.deleteHub(hubUUID);
+    public CommonResponse<Void> deleteHub(@RequestHeader("Authorization") String token,
+                                          @RequestHeader("X-Username") String username,
+                                          @RequestHeader("X-Role") String role,
+                                          @PathVariable("hubUUID") UUID hubUUID) {
+
+        UserInfoRequest userInfo = UserInfoRequest.of(token, username, role);
+        hubService.deleteHub(hubUUID, userInfo);
         return CommonResponse.ofSuccess(null);
     }
 }

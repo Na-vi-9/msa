@@ -6,7 +6,7 @@ import com.sparta.msa.company.application.dto.CreateCompanyResponse;
 import com.sparta.msa.company.application.service.CompanyService;
 import com.sparta.msa.company.domain.entity.Company;
 import com.sparta.msa.company.presentation.dto.CompanyRequest;
-import com.sparta.msa.company.presentation.dto.UserInfo;
+import com.sparta.msa.company.presentation.dto.UserInfoRequest;
 import com.sparta.msa.company.presentation.exception.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -36,8 +36,8 @@ public class CompanyController {
                                                                @RequestHeader("X-Role") String role,
                                                                @RequestBody CompanyRequest companyRequest) {
 
-        UserInfo userInfo = UserInfo.of(token, username, role);
-        return CommonResponse.ofSuccess(companyService.createCompany(companyRequest.toDto(), userInfo));
+        UserInfoRequest userInfoRequest = UserInfoRequest.of(token, username, role);
+        return CommonResponse.ofSuccess(companyService.createCompany(companyRequest.toDto(), userInfoRequest));
     }
 
     @PutMapping("/{companyUUID}")
@@ -49,8 +49,8 @@ public class CompanyController {
 
         log.info("username: {}", username);
 
-        UserInfo userInfo = UserInfo.of(token, username, role);
-        return CommonResponse.ofSuccess(companyService.updateCompany(companyUUID, companyRequest.toDto(), userInfo));
+        UserInfoRequest userInfoRequest = UserInfoRequest.of(token, username, role);
+        return CommonResponse.ofSuccess(companyService.updateCompany(companyUUID, companyRequest.toDto(), userInfoRequest));
     }
 
     @DeleteMapping("/{companyUUID}")
@@ -59,8 +59,8 @@ public class CompanyController {
                                               @RequestHeader("X-Role") String role,
                                               @PathVariable("companyUUID") UUID companyUUID) {
 
-        UserInfo userInfo = UserInfo.of(token, username, role);
-        companyService.deleteCompany(companyUUID, userInfo);
+        UserInfoRequest userInfoRequest = UserInfoRequest.of(token, username, role);
+        companyService.deleteCompany(companyUUID, userInfoRequest);
         return CommonResponse.ofSuccess(null);
     }
 

@@ -15,9 +15,7 @@ import java.util.UUID;
 public class Hub extends BaseEntity implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID hubUUID;
 
     private String name;
@@ -29,11 +27,6 @@ public class Hub extends BaseEntity implements Serializable {
     private Double longitude;
 
     private String managerName;
-
-    @PrePersist
-    private void prePersistence() {
-        hubUUID = UUID.randomUUID();
-    }
 
     public static Hub create(String name, String address, Double latitude, Double longitude, String managerName) {
 
