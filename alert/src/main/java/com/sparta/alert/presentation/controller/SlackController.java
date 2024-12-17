@@ -1,36 +1,45 @@
 package com.sparta.alert.presentation.controller;
 
-import com.slack.api.methods.SlackApiException;
-import com.sparta.alert.domain.service.AiFeignClient;
+import com.sparta.alert.domain.client.UserFeignClient;
+import com.sparta.alert.domain.service.AlertService;
 import com.sparta.alert.domain.service.SlackService;
+import com.sparta.alert.infrastructure.utils.AuthorizationUtils;
 import com.sparta.alert.presentation.request.AiRequestDto;
-import com.sparta.alert.presentation.response.AiMessageCreateResponseDto;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/alert")
 public class SlackController {
 
+    private final AlertService alertService;
+    private final UserFeignClient userFeignClient;
+    private final AuthorizationUtils authorizationUtils;
 
-    private final SlackService slackService;
-    private final AiFeignClient aiFeignClient;
+    @Value("${slack.chanel-id}")
+    private String slackChannelId;
 
-    public SlackController(SlackService slackService, AiFeignClient aiFeignClient) {
-        this.slackService = slackService;
-        this.aiFeignClient = aiFeignClient;
+    public SlackController(AlertService alertService, UserFeignClient userFeignClient, AuthorizationUtils authorizationUtils) {
+        this.alertService = alertService;
+        this.userFeignClient = userFeignClient;
+        this.authorizationUtils = authorizationUtils;
     }
 
-    @PostMapping("/alert")
-    public String sendMessage(@RequestBody AiRequestDto aiRequestDto) throws SlackApiException, IOException {
+    @PostMapping("/send-slack")
+    public ResponseEntity<?> sendSlackAlert(@RequestBody AiRequestDto requestDto,
+                                            @RequestHeader("Authorization") String token) {
+        System.out.println("Received AI Response ID: " + requestDto.getAiResponseId());
+        System.out.println("Using Slack Channel ID: " + slackChannelId);
 
-        AiMessageCreateResponseDto responseDto = aiFeignClient.getAiResponseById(aiRequestDto.getAiResponseId());
+        // 1. 토큰에서 username 추출
+        String username = authorizationUtils.getUsernameFromToken(token);
 
-        // slack에 전송
-        slackService.sendMessage(responseDto.getContent());
+        // 2. user에서 slackId 가져오기
+        String userSlackId = userFeignClient.getSlackIdByUsername(username, token);
 
-        return "Message sent successfully!";
+        alertService.sendSlackChannelAlert(requestDto.getAiResponseId(), userSlackId, token);
+
+        return ResponseEntity.ok("Slack alert sent successfully to channel: " + slackChannelId);
     }
 }

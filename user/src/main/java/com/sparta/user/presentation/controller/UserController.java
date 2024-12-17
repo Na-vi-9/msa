@@ -1,6 +1,7 @@
 package com.sparta.user.presentation.controller;
 
 import com.sparta.user.application.service.UserService;
+import com.sparta.user.domain.model.User;
 import com.sparta.user.presentation.exception.CustomException;
 import com.sparta.user.presentation.exception.ErrorCode;
 import com.sparta.user.presentation.request.*;
@@ -162,4 +163,15 @@ public class UserController {
         }
     }
 
+    @GetMapping("/slack-id")
+    public String getSlackIdByUsername(@RequestParam("username") String username,
+                                       @RequestHeader("Authorization") String token) {
+        System.out.println("Received username: " + username);
+        System.out.println("Received Authorization: " + token);
+
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }        // 권한 검증 없이 Slack ID 조회
+        return userService.getSlackIdByUsername(username);
+    }
 }
