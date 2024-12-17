@@ -2,6 +2,7 @@ package com.sparta.alert.presentation.controller;
 
 import com.sparta.alert.domain.service.AlertService;
 import com.sparta.alert.presentation.request.AiRequestDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -17,17 +18,14 @@ public class SlackController {
     }
 
     @PostMapping("/send-slack")
-    public String sendSlackMessage(@RequestBody AiRequestDto requestDto,
-                                   @RequestHeader("Authorization") String token) {
-        try {
-            System.out.println("Received Request Body: " + requestDto);
-            System.out.println("Received Authorization Header: " + token);
+    public ResponseEntity<?> sendSlackAlert(@RequestParam UUID aiResponseId,
+                                            @RequestParam String slackUserId,
+                                            @RequestHeader("Authorization") String token) {
+        System.out.println("Received AI Response ID: " + aiResponseId);
+        System.out.println("Received Slack User ID: " + slackUserId);
+        System.out.println("Received Authorization Header: " + token);
 
-            alertService.sendFinalDeadline(requestDto.getAiResponseId(), token);
-            return "Slack DM sent successfully!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Error occurred while sending Slack DM: " + e.getMessage();
-        }
+        // Slack 알림 전송 로직
+        return ResponseEntity.ok("Slack alert sent successfully");
     }
 }

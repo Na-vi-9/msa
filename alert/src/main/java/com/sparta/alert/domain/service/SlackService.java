@@ -15,19 +15,22 @@ public class SlackService {
     @Value("${slack.token}")
     private String slackToken;
 
-    private final String slackId = "U084RTJMRLP";
+    public void sendMessage(String slackUserId, String message) {
+        try {
+            Slack slack = Slack.getInstance();
+            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                    .channel(slackUserId)  // slackUserId 사용
+                    .text(message)
+                    .build();
 
-    public void sendMessage(String slackUserId, String message) throws IOException, SlackApiException {
-        Slack slack = Slack.getInstance();
-        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                .channel(slackId)
-                .text(message)
-                .build();
+            ChatPostMessageResponse response = slack.methods(slackToken).chatPostMessage(request);
 
-        ChatPostMessageResponse response = slack.methods(slackToken).chatPostMessage(request);
-
-        if (!response.isOk()) {
-            throw new RuntimeException("Error sending Slack DM: " + response.getError());
+            if (!response.isOk()) {
+                throw new RuntimeException("Error sending Slack DM: " + response.getError());
+            }
+        } catch (IOException | SlackApiException e) {
+            throw new RuntimeException("Failed to send Slack message", e);
         }
     }
+
 }

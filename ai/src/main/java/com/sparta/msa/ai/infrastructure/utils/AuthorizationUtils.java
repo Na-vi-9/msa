@@ -32,11 +32,18 @@ public class AuthorizationUtils {
     }
 
     public String extractToken(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+        System.out.println("Authorization Header: " + authorizationHeader); // 헤더 로그 출력
+
+        if (authorizationHeader == null) {
+            throw new IllegalArgumentException("Invalid Authorization header format: " + authorizationHeader);
+        }
+
+        if (authorizationHeader.startsWith("Bearer ")) {
             return authorizationHeader.substring(7).trim();
         }
-        throw new IllegalArgumentException("Invalid Authorization header format");
+        return authorizationHeader;
     }
+
 
     public String getUsernameFromToken(String token) {
         return extractUsername(token);

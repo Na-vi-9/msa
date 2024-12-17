@@ -26,3 +26,8 @@ eureka:
 
 server:
   port: 19010
+
+service:
+  jwt:
+    access-expiration: 3600000
+    secret-key: ${JWT_SECRET_KEY}

@@ -80,18 +80,28 @@ public class AiService {
 
     private void sendToSlack(UUID aiResponseId, String token) {
         try {
-//            String JwtToken = authorizationUtils.extractToken(token);
-
+            // JWT에서 username 추출
             String username = authorizationUtils.getUsernameFromToken(token);
+            System.out.println("Extracted username from token: " + username);
 
-            // username과 Authorization 헤더로 Slack ID 조회
-            String slackUserId = userFeignClient.getSlackIdByUsername(username, token);
+            // Bearer 접두사 추가
+            String bearerToken = "Bearer " + token;
 
-            // Slack 알림 전송
-            alertFeignClient.sendAlert(aiResponseId, slackUserId);
+            // UserFeignClient로 Slack User ID 조회
+            System.out.println("Sending request to UserFeignClient with token: " + bearerToken);
+            String slackUserId = userFeignClient.getSlackIdByUsername(username, bearerToken);
+            System.out.println("Retrieved Slack User ID: " + slackUserId);
+
+            // AlertFeignClient로 Slack 알림 전송
+            System.out.println("Sending alert to Slack with token: " + bearerToken);
+            alertFeignClient.sendAlert(aiResponseId, slackUserId, bearerToken);
+
+            System.out.println("Slack alert sent successfully!");
+
         } catch (Exception e) {
+            // 오류 발생 시 로그 출력
+            System.err.println("Slack 알림 전송 실패: " + e.getMessage());
             throw new RuntimeException("Slack 알림 전송 실패", e);
         }
     }
-
 }
