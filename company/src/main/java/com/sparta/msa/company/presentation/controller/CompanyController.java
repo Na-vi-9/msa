@@ -47,6 +47,8 @@ public class CompanyController {
                                                          @PathVariable("companyUUID") UUID companyUUID,
                                                          @RequestBody CompanyRequest companyRequest) {
 
+        log.info("username: {}", username);
+
         UserInfo userInfo = UserInfo.of(token, username, role);
         return CommonResponse.ofSuccess(companyService.updateCompany(companyUUID, companyRequest.toDto(), userInfo));
     }

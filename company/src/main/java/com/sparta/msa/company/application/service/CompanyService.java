@@ -39,13 +39,15 @@ public class CompanyService {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
-        UUID validateHubUUID = validateManageHubUUID(request.getHubUUID());
+        UUID validateHubUUID = validateManageHub(request.getHubUUID()).getHubUUID();
+        String validateManagerName = validateManagerName(request.getManagerName(), userDto.getUsername());
 
         Company company = Company.create(
                 request.getName(),
                 request.getType(),
                 validateHubUUID,
-                request.getAddress()
+                request.getAddress(),
+                validateManagerName
         );
 
         companyRepository.save(company);
@@ -61,14 +63,21 @@ public class CompanyService {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
-        UUID validateHubUUID = validateManageHubUUID(request.getHubUUID());
+        HubDto validateHub = validateManageHub(request.getHubUUID());
         Company company = validateCompany(companyUUID);
+
+        if (userDto.getRole().equals(Role.HUB_MANAGER) && !validateHub.getHubManagerName().equals(userDto.getUsername())) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED, "Hub 관리자 이름이 일치하지 않습니다.");
+        }
+
+        String validateManagerName = validateManagerName(company.getManagerName(), userDto.getUsername());
 
         company.update(
                 request.getName(),
                 request.getType(),
-                validateHubUUID,
-                request.getAddress()
+                validateHub.getHubUUID(),
+                request.getAddress(),
+                validateManagerName
         );
 
         return CompanyResponse.fromCompany(company);
@@ -82,22 +91,19 @@ public class CompanyService {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
-        String deletedManagerName = "master";
-
+        String deletedManagerName = userDto.getUsername();
         Company company = validateCompany(companyUUID);
 
         company.markDeleted(deletedManagerName);
     }
 
     public CompanyResponse getCompany(UUID companyUUID) {
-        // TODO: 유저 Role 권한 체크(get 1)
         Company company = validateCompany(companyUUID);
 
         return CompanyResponse.fromCompany(company);
     }
 
     public PagedModel<CompanyResponse> findAllCompanies(Predicate predicate, Pageable pageable) {
-        // TODO: 유저 Role 권한 체크(get 2)
         Page<Company> companyPage = companyRepository.searchCompaniesIsDeletedFalse(predicate, pageable);
 
         return new PagedModel<>(
@@ -111,9 +117,8 @@ public class CompanyService {
         );
     }
 
-    private UUID validateManageHubUUID(UUID hubUUID) {
-        HubDto hubDto = hubClient.getHub(hubUUID);
-        return hubDto.getHubUUID();
+    private HubDto validateManageHub(UUID hubUUID) {
+        return hubClient.getHub(hubUUID).data();
     }
 
     private Company validateCompany(UUID companyUUID) {
@@ -128,6 +133,14 @@ public class CompanyService {
     }
 
     private UserDto validateUserInfo(UserInfo userInfo) {
-        return userClient.getUserInfo(userInfo.getToken(), userInfo.getUsername());
+        return userClient.getUserInfo(userInfo.getToken(), userInfo.getUsername()).data();
+    }
+
+    private String validateManagerName(String managerName, String username) {
+        if (managerName.equals(username)) {
+            return managerName;
+        }
+
+        throw new CustomException(ErrorCode.USER_NAME_MISMATCH);
     }
 }
