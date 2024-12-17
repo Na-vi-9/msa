@@ -93,10 +93,10 @@ public class UserController {
     }
 
     // 유저 조회
-    @GetMapping("/{username}")
+    @GetMapping("/info")
     public CommonResponse<UserRoleInfoResponseDto> getUserInfo(
             @RequestHeader("Authorization") String token,
-            @PathVariable String username) {
+            @RequestParam String username) {
         try {
             return userService.getUserInfoByUsername(token, username);
         } catch (CustomException e) {
