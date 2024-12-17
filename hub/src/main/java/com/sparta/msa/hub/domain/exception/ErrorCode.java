@@ -10,7 +10,9 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"),
     NOT_FOUND_HUB(HttpStatus.NOT_FOUND, "허브 UUID: %s를 찾을 수 없습니다."),
     DELETED_HUB(HttpStatus.BAD_REQUEST, "이미 삭제된 허브입니다."),
-    NOT_FOUND_HUB_ROUTE(HttpStatus.NOT_FOUND, "해당하는 허브 루트를 찾을 수 없습니다.");
+    NOT_FOUND_HUB_ROUTE(HttpStatus.NOT_FOUND, "해당하는 허브 루트를 찾을 수 없습니다."),
+    ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "작업을 수행하기 위해 필요한 권한이 없습니다.")
+    ;
 
     private final HttpStatus status;
     private final String description;

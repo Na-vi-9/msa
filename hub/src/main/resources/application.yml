@@ -26,29 +26,25 @@ spring:
 
 eureka:
   client:
-    register-with-eureka: false
-    fetch-registry: false
     service-url:
       defaultZone: http://localhost:19090/eureka/
-  instance:
-    hostname: localhost
 
 # 추후 사용할 zipkin 및 resilience4j 설정
-#management:
-#  zipkin:
-#    tracing:
-#      endpoint: "http://localhost:9411/api/v2/spans"
-#  tracing:
-#    sampling:
-#      probability: 1.0
-#  endpoints:
-#    web:
-#      exposure:
-#        include: prometheus
-#  prometheus:
-#    metrics:
-#      export:
-#        enabled: true
+management:
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 #
 #resilience4j:
 #  circuitbreaker:

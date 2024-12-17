@@ -6,6 +6,8 @@ import com.sparta.msa.delivery.application.dto.deliveryRoute.UpdateDeliveryRoute
 import com.sparta.msa.delivery.application.service.DeliveryRouteService;
 import com.sparta.msa.delivery.common.dto.CommonResponse;
 import com.sparta.msa.delivery.domain.model.DeliveryRoute;
+import com.sparta.msa.delivery.infrastructure.exception.CustomException;
+import com.sparta.msa.delivery.infrastructure.exception.ErrorCode;
 import com.sparta.msa.delivery.presentation.request.UpdateDeliveryRouteRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +31,11 @@ public class DeliveryRouteController {
 
     @PutMapping("/{deliveryRouteUUID}")
     public CommonResponse<UpdateDeliveryRouteResponse> updateDeliveryRoute(@PathVariable UUID deliveryRouteUUID,
-                                                                           @Valid @RequestBody UpdateDeliveryRouteRequest request) {
-
+                                                                           @Valid @RequestBody UpdateDeliveryRouteRequest request,
+                                                                           @RequestHeader(value = "X-Role") String role) {
+        if(!role.equals("MASTER")) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
         return CommonResponse.ofSuccess(deliveryRouteService.updateDeliveryRoute(deliveryRouteUUID, request.toDto()));
     }
 
@@ -48,11 +53,13 @@ public class DeliveryRouteController {
     }
 
     @DeleteMapping("/{deliveryRouteUUID}")
-    public CommonResponse<?> deleteDeliveryRoute(@PathVariable UUID deliveryRouteUUID) {
-        // TODO
-        //  헤더로 부터 deleteBy 받아오기
-        String deleteBy = "username";
-        deliveryRouteService.deleteDeliveryRoute(deliveryRouteUUID, deleteBy);
+    public CommonResponse<?> deleteDeliveryRoute(@PathVariable UUID deliveryRouteUUID,
+                                                 @RequestHeader(value = "X-Username") String username,
+                                                 @RequestHeader(value = "X-Role") String role) {
+        if(!role.equals("MASTER")) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+        deliveryRouteService.deleteDeliveryRoute(deliveryRouteUUID, username);
 
         return CommonResponse.ofSuccess(null);
     }
