@@ -1,6 +1,10 @@
 package com.sparta.msa.company.infrastructure.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Optional;
 
@@ -8,7 +12,18 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        // 여기서는 "master"를 반환하는 예시로, 실제로는 Spring Security 등을 사용하여 로그인한 사용자 ID를 반환해야 합니다.
-        return Optional.of("master");
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+
+            String username = request.getHeader("X-Username");
+            if (username != null) {
+                return Optional.of(username);
+            }
+        }
+
+
+        return Optional.of("system");
+
     }
 }
