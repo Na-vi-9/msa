@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/users/signUp").permitAll()
                         .requestMatchers(HttpMethod.POST,"/users").hasAnyAuthority("MASTER")
                         .requestMatchers(HttpMethod.PUT,"/users/authority/{username}").hasAnyAuthority("MASTER")
-                        .requestMatchers(HttpMethod.GET, "/users/{username}").hasAnyAuthority("MASTER")
+                        .requestMatchers(HttpMethod.GET, "/users/info").hasAnyAuthority("MASTER")
                         .requestMatchers(HttpMethod.GET, "/users").hasAnyAuthority("MASTER")
                         .requestMatchers(HttpMethod.PUT, "/users/{username}").hasAnyAuthority("MASTER", "HUB_MANAGER", "COMPANY_MANAGER", "DELIVERY_MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/users/{username}").hasAnyAuthority("MASTER")
