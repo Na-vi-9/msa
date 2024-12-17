@@ -5,17 +5,17 @@ import com.sparta.msa.order.application.dto.OrderListResponse;
 import com.sparta.msa.order.application.dto.OrderRequest;
 import com.sparta.msa.order.application.dto.OrderResponse;
 import com.sparta.msa.order.domain.model.Order;
+import com.sparta.msa.order.exception.CommonResponse;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
-import com.sparta.msa.order.infrastructure.client.AiFeignClient;
-import com.sparta.msa.order.infrastructure.client.ProductClient;
-import com.sparta.msa.order.infrastructure.client.ProductInfo;
-import com.sparta.msa.order.infrastructure.client.UserFeignClient;
+import com.sparta.msa.order.infrastructure.client.*;
 import com.sparta.msa.order.infrastructure.repository.OrderRepository;
 import com.sparta.msa.order.infrastructure.utils.AuthorizationUtils;
 import com.sparta.msa.order.presentation.request.GeminiClientRequestDto;
 import com.sparta.msa.order.presentation.response.AiMessageCreateResponseDto;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -32,7 +33,7 @@ public class OrderService {
     private final UserFeignClient userFeignClient;
     private final AuthorizationUtils authorizationUtils;
     private final AiFeignClient aiFeignClient;
-    private final SlackService slackService;
+    private final HubRouteFeignClient hubRouteFeignClient;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request, String token) {
@@ -53,9 +54,6 @@ public class OrderService {
         );
 
         orderRepository.save(order);
-
-        // Slack 알림 전송
-        sendSlackNotification(aiResponse.getContent());
 
         return new OrderResponse(order.getUuid(), order.getDeliveryUUID());
     }
@@ -128,17 +126,64 @@ public class OrderService {
         return product;
     }
 
+    private HubRouteInfoResponse validateHubAvailability(UUID arrival, UUID departure) {
+        HubRouteInfoRequest hubRouteInfoRequest = HubRouteInfoRequest.builder()
+                                                    .arrivalHubUUID(arrival)
+                                                    .departureHubUUID(departure)
+                                                    .build();
+        HubRouteInfoResponse hubRouteInfo =  hubRouteFeignClient.getHubRouteId(hubRouteInfoRequest).data();
+        if (hubRouteInfo == null) {
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
+        return hubRouteInfo;
+    }
+
+    private HubInfoResponse getHub(UUID hubUUID) {
+//        HubInfoRequest hubInfoRequest = HubInfoRequest.builder().hubUUID(hubUUID).build();
+        HubInfoResponse hubInfoResponse = hubRouteFeignClient.getHub(hubUUID).data();
+        if (hubInfoResponse == null) {
+            throw new CustomException(ErrorCode.BAD_REQUEST);
+        }
+        return hubInfoResponse;
+    }
+
+
     private AiMessageCreateResponseDto generateFinalDeadline(OrderRequest request, String token) {
         // 로그 추가
         System.out.println("Generating final deadline with request: " + request);
 
-        String prompt = "상품: " + request.getProductUUID() +
-                ", 수량: " + request.getQuantity() +
-                ", 요청사항: " + request.getMemo() +
-                ", 발송지: " + request.getSupplierCompanyUUID() +
-                ", 도착지: " + request.getReceiverCompanyUUID();
+        ProductInfo productInfo = validateProductAvailability(request.getProductUUID());
+        String productName = productInfo.getName();
 
-        String additionalMessage = ", 위 내용을 기반으로 몇월 며칠 오전/오후 몇시까지 최종 발송 시한을 도출해줘.";
+        // 1. 경로 아이디 가져오기 (출발 도착 허브id로)
+
+        HubRouteInfoResponse hubRouteInfoResponse = validateHubAvailability(request.getReceiverCompanyUUID(), request.getSupplierCompanyUUID());
+        System.out.println("###########");
+        System.out.println(hubRouteInfoResponse.getArrivalUUID());
+        System.out.println(hubRouteInfoResponse.getDepartureUUID());
+
+        // 2. 주는애
+        HubInfoResponse hubInfoResponseSupplier = getHub(request.getReceiverCompanyUUID());
+        System.out.println(hubInfoResponseSupplier.getHubName());
+        System.out.println(hubInfoResponseSupplier.getHubName());
+
+        // 3. 받는애
+        HubInfoResponse hubInfoResponseReceiver = getHub(request.getSupplierCompanyUUID());
+        System.out.println(hubInfoResponseReceiver.getHubName());
+        System.out.println(hubInfoResponseReceiver.getHubName());
+
+        String prompt =
+                "상품: " + productName +
+                ", 수량: " + request.getQuantity() +
+                ", 배송 마감일 : " + request.getMemo() +
+                ", 발송지: " + hubInfoResponseSupplier.getHubAddress() +
+                ", 도착지: " + hubInfoResponseReceiver.getHubAddress() +
+                ", 배송 시간 : " +  hubRouteInfoResponse.getDurationMin();
+
+//      String additionalMessage = ", 위 내용을 기반으로 몇월 며칠 오전/오후 몇시까지 최종 발송 시한을 도출해줘."
+        String additionalMessage ="발송지에서 도착지까지 차로 배송을 할거야, " +
+                "배송 준비 시간은 1일이야" +
+                "배송마감일에 도착을 하려면 몇월 며칠 오전/오후에 출발해야하는지 너가 계산해서 알려줄래?";
 
         // 로그 추가
         System.out.println("Generated prompt: " + prompt);
@@ -158,14 +203,15 @@ public class OrderService {
     }
 
 
-    private void sendSlackNotification(String finalDeadline) {
-        try {
-            String message = "최종 발송 시한: " + finalDeadline;
-            slackService.sendMessage(message);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Slack 알림 전송 실패", e);
-        }
-    }
+
+//    private void sendSlackNotification(String finalDeadline) {
+//        try {
+//            String message = "최종 발송 시한: " + finalDeadline;
+//            slackService.sendMessage(message);
+//        } catch (RuntimeException e) {
+//            throw new RuntimeException("Slack 알림 전송 실패", e);
+//        }
+//    }
 
 
 
