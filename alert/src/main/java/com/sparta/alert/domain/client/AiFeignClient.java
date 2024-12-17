@@ -1,4 +1,4 @@
-package com.sparta.alert.domain.service;
+package com.sparta.alert.domain.client;
 
 import com.sparta.alert.presentation.response.AiMessageCreateResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;

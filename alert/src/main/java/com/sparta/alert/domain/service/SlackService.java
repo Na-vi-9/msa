@@ -1,4 +1,4 @@
-package com.sparta.alert.domain.service;//package com.sparta.alert.domain.service;
+package com.sparta.alert.domain.service;
 
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
@@ -12,22 +12,28 @@ import java.io.IOException;
 @Service
 public class SlackService {
 
+    private final Slack slack = Slack.getInstance();
+
     @Value("${slack.token}")
     private String slackToken;
 
-    private final String slackId = "주문자 slackID 가져오기";
+    public void sendMessageToUser(String userSlackId, String message) {
+        try {
+            // Slack 메시지 전송
+            ChatPostMessageResponse response = slack.methods(slackToken)
+                    .chatPostMessage(ChatPostMessageRequest.builder()
+                            .channel(userSlackId)
+                            .text(message)
+                            .build());
 
-    public void sendMessage(String message) throws IOException, SlackApiException {
-        Slack slack = Slack.getInstance();
-        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                .channel(slackId)
-                .text(message)
-                .build();
+            if (!response.isOk()) {
+                throw new RuntimeException("Error sending Slack message: " + response.getError());
+            }
 
-        ChatPostMessageResponse response = slack.methods(slackToken).chatPostMessage(request);
+            System.out.println("Message sent successfully to user: " + userSlackId);
 
-        if (!response.isOk()) {
-            throw new RuntimeException("Error sending message to Slack: " + response.getError());
+        } catch (IOException | SlackApiException e) {
+            throw new RuntimeException("Failed to send Slack message to user", e);
         }
     }
 }
