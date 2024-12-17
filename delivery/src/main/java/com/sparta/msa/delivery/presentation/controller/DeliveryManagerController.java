@@ -71,19 +71,20 @@ public class DeliveryManagerController {
 
     // 배송 담당자 배정: MASTER만 가능
     @PutMapping("/assign")
-    public ResponseEntity<?> assignDeliveryManager(
+    public ResponseEntity<DeliveryManagerResponse> assignDeliveryManager(
             @RequestHeader("X-Username") String username,
             @RequestHeader("X-Role") String role
     ) {
         if (!isMaster(role)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
-        return ResponseEntity.ok("배송 담당자 배정 성공");
+        DeliveryManagerResponse response = deliveryManagerService.assignHubDeliveryManager();
+        return ResponseEntity.ok(response);
     }
 
     // 특정 허브의 업체 배송 담당자 배정: MASTER만 가능
     @PostMapping("/assign/company/{hubUUID}")
-    public ResponseEntity<?> assignCompanyDeliveryManager(
+    public ResponseEntity<DeliveryManagerResponse> assignCompanyDeliveryManager(
             @PathVariable UUID hubUUID,
             @RequestHeader("X-Username") String username,
             @RequestHeader("X-Role") String role
@@ -91,7 +92,7 @@ public class DeliveryManagerController {
         if (!isMaster(role)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
-        deliveryManagerService.assignCompanyDeliveryManager(hubUUID);
-        return ResponseEntity.ok("업체 배송 담당자 배정 성공");
+        DeliveryManagerResponse response = deliveryManagerService.assignCompanyDeliveryManager(hubUUID);
+        return ResponseEntity.ok(response);
     }
 }
