@@ -36,12 +36,12 @@ public class OrderService {
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request, String token) {
-//        String JwtToken = authorizationUtils.extractToken(token);
         String username = authorizationUtils.extractUsername(token);
 
-//        ProductInfo product = validateProductAvailability(request.getProductUUID());
+        // AI 서비스 호출
         AiMessageCreateResponseDto aiResponse = generateFinalDeadline(request, token);
 
+        // 주문 생성
         Order order = Order.createOrder(
                 request,
                 request.getSupplierCompanyUUID(),
@@ -54,12 +54,12 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        // Slack 알림 전송 (Slack User ID 조회 추가)
-        String slackUserId = userFeignClient.getSlackIdByUsername(username, token);
-        sendSlackNotification(slackUserId, aiResponse.getContent());
+        // Slack 알림 전송
+        sendSlackNotification(aiResponse.getContent());
 
         return new OrderResponse(order.getUuid(), order.getDeliveryUUID());
     }
+
 
     @Transactional(readOnly = true)
     public Page<OrderListResponse> getOrders(String condition, Pageable pageable) {
@@ -158,13 +158,15 @@ public class OrderService {
     }
 
 
-    private void sendSlackNotification(String slackUserId, String finalDeadline) {
+    private void sendSlackNotification(String finalDeadline) {
         try {
-            slackService.sendMessage(slackUserId, "최종 발송 시한: " + finalDeadline);
+            String message = "최종 발송 시한: " + finalDeadline;
+            slackService.sendMessage(message);
         } catch (RuntimeException e) {
             throw new RuntimeException("Slack 알림 전송 실패", e);
         }
     }
+
 
 
     private Order findOrderById(UUID orderUUID) {

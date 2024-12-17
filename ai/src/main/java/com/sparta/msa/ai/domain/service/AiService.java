@@ -3,8 +3,8 @@ package com.sparta.msa.ai.domain.service;
 import com.sparta.msa.ai.domain.model.AiResponse;
 import com.sparta.msa.ai.infrastructure.repository.AiResponseRepository;
 import com.sparta.msa.ai.infrastructure.utils.AuthorizationUtils;
-import com.sparta.msa.ai.infrastructure.utils.JwtTokenProvider;
 import com.sparta.msa.ai.presentation.request.AiMessageRequestDto;
+import com.sparta.msa.ai.presentation.request.AiRequestDto;
 import com.sparta.msa.ai.presentation.request.GeminiClientRequestDto;
 import com.sparta.msa.ai.presentation.response.AiMessageCreateResponseDto;
 import com.sparta.msa.ai.presentation.response.GeminiClientResponseDto;
@@ -18,90 +18,52 @@ import java.util.UUID;
 @Service
 public class AiService {
 
-    private static final String PROMPT_MESSAGE =
-            ", 위 내용을 기반으로 몇월 며칠 오전/오후 몇시까지 최종 발송 시한을 도출해줘";
-    private static final String RESPONSE_FORMAT =
-            ", 답변 형식은 위 내용을 기반으로 도출된 최종 발송 시한은 몇월 며칠 오전/오후 몇시입니다.";
-
     private final GeminiClientService geminiClientService;
     private final AiResponseRepository aiResponseRepository;
     private final AlertFeignClient alertFeignClient;
-    private final UserFeignClient userFeignClient;
-    private final AuthorizationUtils authorizationUtils;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    public AiMessageCreateResponseDto createAiMessage(AiMessageRequestDto requestDto, String token) {
-        // Gemini API 요청을 위한 메시지 생성
-        String prompt = requestDto.getQuestion();
-        String additionalMessage = ", 위 내용을 기반으로 몇월 며칠 오전/오후 몇시까지 최종 발송 시한을 도출해줘";
+    @Value("${SLACK_CHANNEL_ID}")
+    private String slackChannelId;
 
-        // GeminiClientRequestDto 생성
-        GeminiClientRequestDto geminiRequest = GeminiClientRequestDto.create(prompt, additionalMessage);
+    public AiMessageCreateResponseDto createAiMessageAndNotifyChannel(AiMessageRequestDto requestDto, String token) {
+        // Gemini API 요청
+        GeminiClientRequestDto geminiRequest = GeminiClientRequestDto.create(
+                requestDto.getQuestion(),
+                ", 위 내용을 기반으로 몇월 며칠 오전/오후 몇시까지 최종 발송 시한을 도출해줘"
+        );
 
-        // Gemini API 호출
+        // Gemini API 호출 및 응답 처리
         GeminiClientResponseDto responseDto = geminiClientService.sendPrompt(apiKey, geminiRequest);
+        String aiResponseText = responseDto.getCandidates()
+                .get(0).getContent().getParts().get(0).getText();
 
-        // 응답 데이터 추출
-        String aiResponseText = extractResponseText(responseDto);
-
-        // 응답 저장
-        AiResponse savedResponse = saveAiResponse(aiResponseText);
-
-        String JwtToken = jwtTokenProvider.extractToken(token);
+        // AI 응답 저장
+        AiResponse savedResponse = aiResponseRepository.save(AiResponse.builder().answer(aiResponseText).build());
 
         // Slack 알림 전송
-        sendToSlack(savedResponse.getId(), JwtToken);
+        sendToSlackChannel(savedResponse.getId(), token);
 
-        // 응답 반환
+        // 결과 반환
         return AiMessageCreateResponseDto.builder()
                 .content(aiResponseText)
                 .build();
     }
 
-
-    private String extractResponseText(GeminiClientResponseDto responseDto) {
-        return responseDto.getCandidates()
-                .get(0)
-                .getContent()
-                .getParts()
-                .get(0)
-                .getText();
-    }
-
-    private AiResponse saveAiResponse(String responseText) {
-        AiResponse aiResponse = AiResponse.builder()
-                .answer(responseText)
-                .build();
-        return aiResponseRepository.save(aiResponse);
-    }
-
-    private void sendToSlack(UUID aiResponseId, String token) {
+    private void sendToSlackChannel(UUID aiResponseId, String token) {
         try {
-            // JWT에서 username 추출
-            String username = authorizationUtils.getUsernameFromToken(token);
-            System.out.println("Extracted username from token: " + username);
+            // JSON 객체 생성
+            AiRequestDto requestDto = new AiRequestDto(aiResponseId);
 
-            // Bearer 접두사 추가
-            String bearerToken = "Bearer " + token;
-
-            // UserFeignClient로 Slack User ID 조회
-            System.out.println("Sending request to UserFeignClient with token: " + bearerToken);
-            String slackUserId = userFeignClient.getSlackIdByUsername(username, bearerToken);
-            System.out.println("Retrieved Slack User ID: " + slackUserId);
-
-            // AlertFeignClient로 Slack 알림 전송
-            System.out.println("Sending alert to Slack with token: " + bearerToken);
-            alertFeignClient.sendAlert(aiResponseId, slackUserId, bearerToken);
-
-            System.out.println("Slack alert sent successfully!");
+            // Slack 채널로 알림 전송
+            alertFeignClient.sendAlert(requestDto, "Bearer " + token);
+            System.out.println("Slack 채널 알림 전송 성공!");
 
         } catch (Exception e) {
-            // 오류 발생 시 로그 출력
-            System.err.println("Slack 알림 전송 실패: " + e.getMessage());
-            throw new RuntimeException("Slack 알림 전송 실패", e);
+            throw new RuntimeException("Slack 채널 알림 전송 실패", e);
         }
     }
+
 }

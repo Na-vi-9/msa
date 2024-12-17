@@ -14,27 +14,28 @@ public class SlackService {
 
     private final Slack slack = Slack.getInstance();
 
-    @Value("${slack.bot.token}")
+    @Value("${SLACK_TOKEN}")
     private String slackToken;
 
-    @Value("${slack.channel.id}")
+    @Value("${SLACK_CHANNEL_ID}")
     private String channelId;
 
-    public void sendMessage(String slackUserId, String message) {
+    public void sendMessage(String message) {
         try {
-            Slack slack = Slack.getInstance();
             ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                    .channel(channelId)
+                    .channel(channelId) // 고정된 Slack 채널 ID 사용
                     .text(message)
                     .build();
 
             ChatPostMessageResponse response = slack.methods(slackToken).chatPostMessage(request);
 
             if (!response.isOk()) {
-                throw new RuntimeException("Error sending Slack DM: " + response.getError());
+                throw new RuntimeException("Slack 메시지 전송 실패: " + response.getError());
             }
+            System.out.println("Slack 메시지 전송 성공!");
+
         } catch (IOException | SlackApiException e) {
-            throw new RuntimeException("Failed to send Slack message", e);
+            throw new RuntimeException("Slack 메시지 전송 중 오류 발생", e);
         }
     }
 }

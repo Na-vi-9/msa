@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "ai", url = "http://localhost:19099", configuration = FeignConfig.class)
 public interface AiFeignClient {
 
-    @PostMapping("/ai")
-    AiMessageCreateResponseDto createAiMessage(@RequestHeader("Authorization") String authorization,
-                                               @RequestBody GeminiClientRequestDto request);
+    @PostMapping("/create-and-alert")
+    AiMessageCreateResponseDto createAiMessage(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody GeminiClientRequestDto request);
 }
-
