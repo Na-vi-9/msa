@@ -1,5 +1,5 @@
 server:
-  port: 19094
+  port: 19093
 
 spring:
   config:
@@ -7,17 +7,11 @@ spring:
   profiles:
     default: local
   application:
-    name: hub
+    name: company
   datasource:
     url: ${database.url}
     username: ${database.username}
     password: ${database.password}
-  data:
-    redis:
-      host: ${redis.host}
-      port: ${redis.port}
-      username: ${redis.username}
-      password: ${redis.password}
   jpa:
     show-sql: true
     database: postgresql
@@ -28,6 +22,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:19090/eureka/
+
 
 # 추후 사용할 zipkin 및 resilience4j 설정
 #management:

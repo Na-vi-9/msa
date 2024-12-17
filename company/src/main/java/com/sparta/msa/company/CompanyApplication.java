@@ -1,17 +1,17 @@
-package com.sparta.msa.hub;
+package com.sparta.msa.company;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@EnableFeignClients
-@EnableJpaAuditing
 @SpringBootApplication
-public class HubApplication {
+@EnableJpaAuditing
+@EnableFeignClients
+public class CompanyApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(HubApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(CompanyApplication.class, args);
+	}
 
 }

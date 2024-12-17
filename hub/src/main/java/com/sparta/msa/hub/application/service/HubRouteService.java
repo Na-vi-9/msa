@@ -52,10 +52,15 @@ public class HubRouteService {
 
                 requestCount++;
 
+                // TODO: 효율적으로 API 분당 제한 시간동안 대기하도록 검토
                 // 요청이 40번을 초과하면 1분 대기
                 if (requestCount >= 39) {
-                    // 1분 대기
-                    scheduler.schedule(() -> {}, 1, TimeUnit.MINUTES); // 1분 후 다시 실행
+                    try {
+                        System.out.println("Rate limit reached. Waiting for 1 minute...");
+                        Thread.sleep(60_000);  // 1분 대기
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();  // 인터럽트 상태 복구
+                    }
                     requestCount = 0;  // 요청 횟수 초기화
                 }
             }
