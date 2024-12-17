@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserInfo {
+public class UserInfoRequest {
     private String token;
     private String username;
     private String role;
 
-    public static UserInfo of(String token, String username, String role) {
-        return UserInfo.builder()
+    public static UserInfoRequest of(String token, String username, String role) {
+        return UserInfoRequest.builder()
                 .token(token)
                 .username(username)
                 .role(role)

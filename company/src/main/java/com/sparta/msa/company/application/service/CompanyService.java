@@ -9,7 +9,7 @@ import com.sparta.msa.company.domain.exception.ErrorCode;
 import com.sparta.msa.company.domain.repository.CompanyRepository;
 import com.sparta.msa.company.infrastructure.clients.HubClient;
 import com.sparta.msa.company.infrastructure.clients.UserClient;
-import com.sparta.msa.company.presentation.dto.UserInfo;
+import com.sparta.msa.company.presentation.dto.UserInfoRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,8 +32,8 @@ public class CompanyService {
     private final HubClient hubClient;
 
     @Transactional
-    public CreateCompanyResponse createCompany(CompanyDto request, UserInfo userInfo) {
-        UserDto userDto = validateUserInfo(userInfo);
+    public CreateCompanyResponse createCompany(CompanyDto request, UserInfoRequest userInfoRequest) {
+        UserDto userDto = validateUserInfo(userInfoRequest);
 
         if (!(userDto.getRole().equals(Role.MASTER) || userDto.getRole().equals(Role.HUB_MANAGER))) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
@@ -56,8 +56,8 @@ public class CompanyService {
     }
 
     @Transactional
-    public CompanyResponse updateCompany(UUID companyUUID, CompanyDto request, UserInfo userInfo) {
-        UserDto userDto = validateUserInfo(userInfo);
+    public CompanyResponse updateCompany(UUID companyUUID, CompanyDto request, UserInfoRequest userInfoRequest) {
+        UserDto userDto = validateUserInfo(userInfoRequest);
 
         if (userDto.getRole().equals(Role.DELIVERY_MANAGER)) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
@@ -84,8 +84,8 @@ public class CompanyService {
     }
 
     @Transactional
-    public void deleteCompany(UUID companyUUID, UserInfo userInfo) {
-        UserDto userDto = validateUserInfo(userInfo);
+    public void deleteCompany(UUID companyUUID, UserInfoRequest userInfoRequest) {
+        UserDto userDto = validateUserInfo(userInfoRequest);
 
         if (!(userDto.getRole().equals(Role.MASTER) || userDto.getRole().equals(Role.HUB_MANAGER))) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
@@ -132,8 +132,8 @@ public class CompanyService {
         return company;
     }
 
-    private UserDto validateUserInfo(UserInfo userInfo) {
-        return userClient.getUserInfo(userInfo.getToken(), userInfo.getUsername()).data();
+    private UserDto validateUserInfo(UserInfoRequest userInfoRequest) {
+        return userClient.getUserInfo(userInfoRequest.getToken(), userInfoRequest.getUsername()).data();
     }
 
     private String validateManagerName(String managerName, String username) {
