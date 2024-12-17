@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthorizationUtils {
 
-    @Value("${jwt.secret.key}")
+    @Value("${service.jwt.secret-key}")
     private String jwtSecretKey;
 
     public String extractUsername(String token) {

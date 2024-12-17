@@ -1,7 +1,9 @@
 package com.sparta.msa.order.application.service;
 
-import com.slack.api.methods.SlackApiException;
-import com.sparta.msa.order.application.dto.*;
+import com.sparta.msa.order.application.dto.OrderDetailResponse;
+import com.sparta.msa.order.application.dto.OrderListResponse;
+import com.sparta.msa.order.application.dto.OrderRequest;
+import com.sparta.msa.order.application.dto.OrderResponse;
 import com.sparta.msa.order.domain.model.Order;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
@@ -19,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -35,10 +36,11 @@ public class OrderService {
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request, String token) {
+//        String JwtToken = authorizationUtils.extractToken(token);
         String username = authorizationUtils.extractUsername(token);
 
-        ProductInfo product = validateProductAvailability(request.getProductUUID());
-        AiMessageCreateResponseDto aiResponse = generateFinalDeadline(request);
+//        ProductInfo product = validateProductAvailability(request.getProductUUID());
+        AiMessageCreateResponseDto aiResponse = generateFinalDeadline(request, token);
 
         Order order = Order.createOrder(
                 request,
@@ -126,7 +128,7 @@ public class OrderService {
         return product;
     }
 
-    private AiMessageCreateResponseDto generateFinalDeadline(OrderRequest request) {
+    private AiMessageCreateResponseDto generateFinalDeadline(OrderRequest request, String token) {
         // 로그 추가
         System.out.println("Generating final deadline with request: " + request);
 
@@ -146,7 +148,8 @@ public class OrderService {
         // 로그 추가
         System.out.println("Generated AI Request: " + aiRequest);
 
-        AiMessageCreateResponseDto response = aiFeignClient.createAiMessage(aiRequest);
+        String jwtToken = authorizationUtils.extractToken(token);
+        AiMessageCreateResponseDto response = aiFeignClient.createAiMessage(jwtToken, aiRequest);
 
         // 로그 추가
         System.out.println("AI Response: " + response);

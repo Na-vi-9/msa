@@ -3,6 +3,7 @@ package com.sparta.msa.ai.domain.service;
 import com.sparta.msa.ai.domain.model.AiResponse;
 import com.sparta.msa.ai.infrastructure.repository.AiResponseRepository;
 import com.sparta.msa.ai.infrastructure.utils.AuthorizationUtils;
+import com.sparta.msa.ai.infrastructure.utils.JwtTokenProvider;
 import com.sparta.msa.ai.presentation.request.AiMessageRequestDto;
 import com.sparta.msa.ai.presentation.request.GeminiClientRequestDto;
 import com.sparta.msa.ai.presentation.response.AiMessageCreateResponseDto;
@@ -27,6 +28,7 @@ public class AiService {
     private final AlertFeignClient alertFeignClient;
     private final UserFeignClient userFeignClient;
     private final AuthorizationUtils authorizationUtils;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${gemini.api.key}")
     private String apiKey;
@@ -48,8 +50,10 @@ public class AiService {
         // 응답 저장
         AiResponse savedResponse = saveAiResponse(aiResponseText);
 
+        String JwtToken = jwtTokenProvider.extractToken(token);
+
         // Slack 알림 전송
-        sendToSlack(savedResponse.getId(), token);
+        sendToSlack(savedResponse.getId(), JwtToken);
 
         // 응답 반환
         return AiMessageCreateResponseDto.builder()
@@ -76,9 +80,9 @@ public class AiService {
 
     private void sendToSlack(UUID aiResponseId, String token) {
         try {
-            String JwtToken = authorizationUtils.extractToken(token);
+//            String JwtToken = authorizationUtils.extractToken(token);
 
-            String username = authorizationUtils.getUsernameFromToken(JwtToken);
+            String username = authorizationUtils.getUsernameFromToken(token);
 
             // username과 Authorization 헤더로 Slack ID 조회
             String slackUserId = userFeignClient.getSlackIdByUsername(username, token);
