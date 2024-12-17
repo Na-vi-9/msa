@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -31,12 +32,14 @@ public class LocalJwtAuthenticationFilter implements GlobalFilter {
 
         String token = extractToken(exchange);
 
-        if(token == null || !validateToken(token, exchange)) {
+        ServerHttpRequest modifiedRequest = validateToken(token, exchange);
+
+        if(token == null || modifiedRequest == null) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
-        return chain.filter(exchange);
+        return chain.filter(exchange.mutate().request(modifiedRequest).build());
     }
 
     private String extractToken(ServerWebExchange exchange) {
@@ -49,21 +52,21 @@ public class LocalJwtAuthenticationFilter implements GlobalFilter {
         return null;
     }
 
-    private boolean validateToken(String token, ServerWebExchange exchange) {
+    private ServerHttpRequest validateToken(String token, ServerWebExchange exchange) {
         try {
             SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
             Jws<Claims> claimsJws = Jwts.parser()
                     .verifyWith(key)
                     .build().parseSignedClaims(token);
             log.info("#####payload :: " + claimsJws.getPayload().toString());
-            Claims claims = claimsJws.getPayload();
-            exchange.getRequest().mutate()
+            Claims claims = claimsJws.getBody();
+            return exchange.getRequest().mutate()
                     .header("X-Username", claims.get("username").toString())
                     .header("X-Role", claims.get("role").toString())
                     .build();
-            return true;
+
         } catch (Exception e) {
-            return false;
+            return null;
         }
     }
 }
