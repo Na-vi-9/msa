@@ -27,15 +27,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DeliveryRouteService {
     private final DeliveryRouteRepository deliveryRouteRepository;
+    private final DeliveryManagerService deliveryManagerService;
     private final HubService hubService;
 
     @Transactional
     public void createDeliveryRoute(CreateDeliveryRouteDto request) {
-        // TODO
-        //  P2P: 출발지와 도착지 허브를 통해 경로 받고 해당 허브 배송담당자 추출
         HubRouteDto hubRouteDto = hubService.getHubRoute(GetHubRouteRequest.of(request.getDepartureHubUUID(), request.getArrivalHubUUID())).data();
 
-        String deliveryManagerUsername = "username";
+        String deliveryManagerUsername = deliveryManagerService.assignHubDeliveryManager().getUsername();
         Integer sequence = 1;
 
         deliveryRouteRepository.save(DeliveryRoute.create(request.getDeliveryUUID(), request.getDepartureHubUUID(), request.getArrivalHubUUID(),

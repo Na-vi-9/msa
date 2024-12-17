@@ -5,8 +5,11 @@ import com.sparta.msa.delivery.application.dto.delivery.CreateDeliveryResponse;
 import com.sparta.msa.delivery.application.dto.delivery.DeliveryResponse;
 import com.sparta.msa.delivery.application.dto.delivery.UpdateDeliveryResponse;
 import com.sparta.msa.delivery.application.service.DeliveryService;
+import com.sparta.msa.delivery.application.service.HubService;
 import com.sparta.msa.delivery.common.dto.CommonResponse;
 import com.sparta.msa.delivery.domain.model.Delivery;
+import com.sparta.msa.delivery.infrastructure.exception.CustomException;
+import com.sparta.msa.delivery.infrastructure.exception.ErrorCode;
 import com.sparta.msa.delivery.presentation.request.CreateDeliveryRequest;
 import com.sparta.msa.delivery.presentation.request.UpdateDeliveryRequest;
 import jakarta.validation.Valid;
@@ -28,6 +31,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DeliveryController {
     private final DeliveryService deliveryService;
+    private final HubService hubService;
 
     @PostMapping
     public CommonResponse<CreateDeliveryResponse> createDelivery(@Valid @RequestBody CreateDeliveryRequest request) {
@@ -49,15 +53,37 @@ public class DeliveryController {
 
     @PutMapping("/{DeliveryUUID}")
     public CommonResponse<UpdateDeliveryResponse> updateDelivery(@PathVariable UUID DeliveryUUID,
-                                                                 @Valid @RequestBody UpdateDeliveryRequest request) {
+                                                                 @Valid @RequestBody UpdateDeliveryRequest request,
+                                                                 @RequestHeader(value = "X-Username") String username,
+                                                                 @RequestHeader(value = "X-Role") String role) {
+
+        if(!isMaster(role) && !isMyHub(request.getDepartureHubUUID(), username, role)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         return CommonResponse.ofSuccess(deliveryService.updateDelivery(DeliveryUUID, request.toDto()));
     }
 
+    private boolean isMyHub(UUID hubUUID, String username, String role) {
+        return role.equals("DELIVERY_MANAGER") &&
+                hubService.getHub(hubUUID)
+                        .data()
+                        .getHubManagerName()
+                        .equals(username);
+    }
+
+    private static boolean isMaster(String role) {
+        return role.equals("MASTER");
+    }
+
     @DeleteMapping("/{DeliveryUUID}")
-    public CommonResponse<?> deleteDelivery(@PathVariable UUID DeliveryUUID) {
-        String deletedBy = "tmp";
-        deliveryService.deleteDelivery(DeliveryUUID, deletedBy);
+    public CommonResponse<?> deleteDelivery(@PathVariable UUID DeliveryUUID,
+                                            @RequestHeader(value = "X-Username") String username,
+                                            @RequestHeader(value = "X-Role") String role) {
+        if(!isMaster(role)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+        deliveryService.deleteDelivery(DeliveryUUID, username);
 
         return CommonResponse.ofSuccess(null);
     }
