@@ -3,12 +3,17 @@ package com.sparta.msa.hub.application.service;
 import com.sparta.msa.hub.application.dto.CreateHubResponse;
 import com.sparta.msa.hub.application.dto.HubDto;
 import com.sparta.msa.hub.application.dto.HubResponse;
+import com.sparta.msa.hub.application.dto.UserDto;
 import com.sparta.msa.hub.domain.entity.Hub;
+import com.sparta.msa.hub.domain.enums.Role;
 import com.sparta.msa.hub.domain.exception.CustomException;
 import com.sparta.msa.hub.domain.exception.ErrorCode;
+import com.sparta.msa.hub.infrastructure.clients.UserClient;
 import com.sparta.msa.hub.infrastructure.repository.HubRepository;
+import com.sparta.msa.hub.presentation.dto.UserInfoRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.actuate.security.AuthorizationAuditListener;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
@@ -22,53 +27,64 @@ import java.util.UUID;
 public class HubService {
 
     private final HubRepository hubRepository;
+    private final UserClient userClient;
 
     @Transactional
     @CacheEvict(cacheNames = "hubsCache", allEntries = true)
-    public CreateHubResponse createHub(HubDto request) {
-        // TODO: 유저 검증 메서드 호출 필요(테스트를 위해 임시 값 사용)
-        String validateManagerId = "master";
+    public CreateHubResponse createHub(HubDto request, UserInfoRequest userInfo) {
+        UserDto validateUserInfo = validateUsername(userInfo);
 
-        Hub hub = Hub.create(
-                request.getName(),
-                request.getAddress(),
-                request.getLatitude(),
-                request.getLongitude(),
-                validateManagerId
-        );
+        if (validateUserInfo.getRole().equals(Role.MASTER)) {
+            Hub hub = Hub.create(
+                    request.getName(),
+                    request.getAddress(),
+                    request.getLatitude(),
+                    request.getLongitude(),
+                    validateUserInfo.getUsername()
+                    );
 
-        hubRepository.save(hub);
+            hubRepository.save(hub);
 
-        return CreateHubResponse.toResponse(hub.getHubUUID());
+            return CreateHubResponse.toResponse(hub.getHubUUID());
+        }
+
+        throw new CustomException(ErrorCode.ACCESS_DENIED);
     }
 
     @Transactional
     @CachePut(cacheNames = "hubCache", key = "#hubUUID")
-    public HubResponse updateHub(UUID hubUUID, HubDto request) {
-        // 유저 검증 메서드 호출 필요
-        String validateManagerId = "master";
+    public HubResponse updateHub(UUID hubUUID, HubDto request, UserInfoRequest userInfo) {
+        UserDto validateUserInfo = validateUsername(userInfo);
 
-        Hub hub = validateHub(hubUUID);
+        if (validateUserInfo.getRole().equals(Role.MASTER)) {
+            Hub hub = validateHub(hubUUID);
 
-        hub.update(
-                request.getName(),
-                request.getAddress(),
-                request.getLatitude(),
-                request.getLongitude(),
-                validateManagerId);
+            hub.update(
+                    request.getName(),
+                    request.getAddress(),
+                    request.getLatitude(),
+                    request.getLongitude(),
+                    validateUserInfo.getUsername()
+            );
 
-        return HubResponse.fromHub(hub);
+            return HubResponse.fromHub(hub);
+        }
+
+        throw new CustomException(ErrorCode.ACCESS_DENIED);
     }
 
     @Transactional
     @CacheEvict(cacheNames = "hubCache", key = "#hubUUID")
-    public void deleteHub(UUID hubUUID) {
-        // TODO: 삭제자 정보 - 임시 데이터 사용 추후 User 서비스 결합 후 삭제하는 관리자 id 추가
-        String deletedManagerId = "master";
+    public void deleteHub(UUID hubUUID, UserInfoRequest userInfo) {
+        UserDto validateUserInfo = validateUsername(userInfo);
 
-        Hub hub = validateHub(hubUUID);
+        if (validateUserInfo.getRole().equals(Role.MASTER)) {
+            Hub hub = validateHub(hubUUID);
 
-        hub.markDeleted(deletedManagerId);
+            hub.markDeleted(validateUserInfo.getUsername());
+        }
+
+        throw new CustomException(ErrorCode.ACCESS_DENIED);
     }
 
     public Hub validateHub(UUID hubUUID) {
@@ -80,5 +96,9 @@ public class HubService {
         }
 
         return hub;
+    }
+
+    private UserDto validateUsername(UserInfoRequest request) {
+        return userClient.getUserInfo(request.getToken(), request.getUsername()).data();
     }
 }
