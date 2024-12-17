@@ -1,17 +1,27 @@
 package com.sparta.msa.product.infrastructure.configuration;
 
+import com.sparta.msa.product.infrastructure.utils.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -19,12 +29,18 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
 
-                    .requestMatchers("/products/**").permitAll()
+                    .requestMatchers(HttpMethod.POST,"/products").hasAnyAuthority("MASTER", "HUB_MANAGER", "COMPANY_MANAGER")
+                    .requestMatchers(HttpMethod.GET,"/products").hasAnyAuthority("MASTER", "HUB_MANAGER", "COMPANY_MANAGER","DELIVERY_MANAGER")
+                    .requestMatchers(HttpMethod.GET,"/products/{productUUID}").hasAnyAuthority("MASTER", "HUB_MANAGER", "COMPANY_MANAGER","DELIVERY_MANAGER")
+                    .requestMatchers(HttpMethod.PUT,"/products/{productUUID}").hasAnyAuthority("MASTER", "HUB_MANAGER", "COMPANY_MANAGER")
+                    .requestMatchers(HttpMethod.DELETE,"/products/{productUUID}").hasAnyAuthority("MASTER", "HUB_MANAGER")
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
