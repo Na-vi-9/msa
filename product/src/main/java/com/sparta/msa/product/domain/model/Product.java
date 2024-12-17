@@ -3,6 +3,7 @@ package com.sparta.msa.product.domain.model;
 import com.sparta.msa.product.application.dto.CreateProductRequest;
 import com.sparta.msa.product.application.dto.UpdateProductRequest;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "p_product")
 public class Product {
@@ -69,26 +71,36 @@ public class Product {
         this.createdBy = createdBy;
     }
 
-    public static Product create(CreateProductRequest request) {
+    public static Product create(CreateProductRequest request, String createdBy) {
         return Product.builder()
                 .uuid(UUID.randomUUID())
                 .companyUUID(request.getCompanyUUID())
                 .hubUUID(request.getHubUUID())
                 .name(request.getName())
                 .quantity(request.getQuantity())
-                .createdBy("system") // 임시값
+                .createdBy(createdBy)
                 .build();
     }
 
-    public void update(UpdateProductRequest request) {
+    public void update(UpdateProductRequest request, String updatedBy) {
         this.name = request.getName();
         this.quantity = request.getQuantity();
-        this.updatedBy = "system"; // 임시값
+        this.updatedBy = updatedBy;
     }
+
 
     public void delete(String deletedBy) {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = deletedBy;
     }
+
+    public void setQuantity(Integer quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("수량이 0보다 작을 수 없습니다.");
+        }
+        this.quantity = quantity;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }
