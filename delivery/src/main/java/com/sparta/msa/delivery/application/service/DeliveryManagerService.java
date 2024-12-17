@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,17 +51,46 @@ public class DeliveryManagerService {
     }
 
     @Transactional
-    public DeliveryManagerResponse assignDeliveryManager() {
-        DeliveryManager deliveryManager = deliveryManagerJpaRepository.findTopByIsDeletedFalseOrderByDeliveryOrderAsc()
+    public DeliveryManagerResponse assignHubDeliveryManager() {
+        DeliveryManager deliveryManager = deliveryManagerJpaRepository
+                .findTopByTypeAndIsDeletedFalseOrderByDeliveryOrderAsc(DeliveryManagerType.HUB_MANAGER)
                 .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_MANAGER_NOT_FOUND));
 
-        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrder();
+        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrderByType(DeliveryManagerType.HUB_MANAGER);
         lastOrder = (lastOrder != null) ? lastOrder : 0;
-        deliveryManager.updateDeliveryOrder(lastOrder + 1);
 
+        deliveryManager.updateDeliveryOrder(lastOrder + 1);
         deliveryManagerJpaRepository.save(deliveryManager);
+
         return new DeliveryManagerResponse(deliveryManager);
     }
+
+
+    @Transactional
+    public DeliveryManagerResponse assignCompanyDeliveryManager(UUID hubUUID) {
+        // 로그 추가
+        System.out.println("Assigning company delivery manager for hubUUID: " + hubUUID);
+
+        Optional<DeliveryManager> deliveryManagerOpt = deliveryManagerJpaRepository
+                .findTopByTypeAndHubUUIDAndIsDeletedFalseOrderByDeliveryOrderAsc(DeliveryManagerType.COMPANY_MANAGER, hubUUID);
+
+        // 추가 로그: 조회된 결과 확인
+        System.out.println("Delivery Manager found: " + deliveryManagerOpt);
+
+        DeliveryManager deliveryManager = deliveryManagerOpt
+                .orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_MANAGER_NOT_FOUND));
+
+        Integer lastOrder = deliveryManagerJpaRepository.findLastDeliveryOrderByTypeAndHubUUID(DeliveryManagerType.COMPANY_MANAGER, hubUUID);
+        lastOrder = (lastOrder != null) ? lastOrder : 0;
+
+        deliveryManager.updateDeliveryOrder(lastOrder + 1);
+        deliveryManagerJpaRepository.save(deliveryManager);
+
+        return new DeliveryManagerResponse(deliveryManager);
+    }
+
+
+
 
     @Transactional
     public DeliveryManagerResponse updateDeliveryManager(String username, DeliveryManagerRequest request) {
