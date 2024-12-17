@@ -29,6 +29,9 @@ https://www.notion.so/teamsparta/API-4ba9bac386d04650a27fa38f1a0fc2c2
 프로젝트의 서비스 구성 및 실행방법은 아래 링크에서 확인하실 수 있습니다.<br>
 https://github.com/Na-vi-9/msa/wiki
 
+### 📄 프로젝트 발표 자료
+
+
 ---
 
 # 📖 Project Technologies
