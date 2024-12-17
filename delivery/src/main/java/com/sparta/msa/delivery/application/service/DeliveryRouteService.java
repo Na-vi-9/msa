@@ -34,7 +34,7 @@ public class DeliveryRouteService {
     public void createDeliveryRoute(CreateDeliveryRouteDto request) {
         HubRouteDto hubRouteDto = hubService.getHubRoute(GetHubRouteRequest.of(request.getDepartureHubUUID(), request.getArrivalHubUUID())).data();
 
-        String deliveryManagerUsername = deliveryManagerService.assignDeliveryManager().getUsername();
+        String deliveryManagerUsername = deliveryManagerService.assignHubDeliveryManager().getUsername();
         Integer sequence = 1;
 
         deliveryRouteRepository.save(DeliveryRoute.create(request.getDeliveryUUID(), request.getDepartureHubUUID(), request.getArrivalHubUUID(),
