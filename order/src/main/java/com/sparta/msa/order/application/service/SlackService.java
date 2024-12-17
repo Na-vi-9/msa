@@ -14,10 +14,10 @@ public class SlackService {
 
     private final Slack slack = Slack.getInstance();
 
-    @Value("${SLACK_TOKEN}")
+    @Value("${slack.bot.token}")
     private String slackToken;
 
-    @Value("${SLACK_CHANNEL_ID}")
+    @Value("${slack.channel.id}")
     private String channelId;
 
     public void sendMessage(String message) {

@@ -18,6 +18,7 @@ spring:
 
 slack:
   token: ${SLACK_TOKEN}
+  chanel-id : ${SLACK_CHANNEL_ID} #  #slackalert
 
 eureka:
   client:

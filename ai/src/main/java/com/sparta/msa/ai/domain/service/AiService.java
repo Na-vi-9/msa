@@ -25,9 +25,6 @@ public class AiService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    @Value("${SLACK_CHANNEL_ID}")
-    private String slackChannelId;
-
     public AiMessageCreateResponseDto createAiMessageAndNotifyChannel(AiMessageRequestDto requestDto, String token) {
         // Gemini API 요청
         GeminiClientRequestDto geminiRequest = GeminiClientRequestDto.create(

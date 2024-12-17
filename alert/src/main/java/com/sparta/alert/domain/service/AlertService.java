@@ -22,16 +22,16 @@ public class AlertService {
         this.authorizationUtils = authorizationUtils;
     }
 
-    public void sendSlackChannelAlert(UUID aiResponseId, String slackChannelId, String token) {
+    public void sendSlackChannelAlert(UUID aiResponseId, String userSlackId, String token) {
         try {
             // AI 응답 가져오기
             AiMessageCreateResponseDto responseDto = aiFeignClient.getAiResponseById(aiResponseId);
             System.out.println("AI Response Content: " + responseDto.getContent());
 
             // Slack 채널에 메시지 전송
-            slackService.sendMessageToChannel(slackChannelId, responseDto.getContent());
+            slackService.sendMessageToUser(userSlackId, responseDto.getContent());
 
-            System.out.println("Slack notification sent to channel: " + slackChannelId);
+            System.out.println("Slack notification sent to channel: " + userSlackId);
 
         } catch (Exception e) {
             System.err.println("Error in sendSlackChannelAlert: " + e.getMessage());
