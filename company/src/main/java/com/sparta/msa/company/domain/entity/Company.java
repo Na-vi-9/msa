@@ -28,20 +28,24 @@ public class Company extends BaseEntity implements Serializable {
 
     private String address;
 
-    public static Company create(String name, Type type, UUID manageHubUUID, String address) {
+    private String managerName;
+
+    public static Company create(String name, Type type, UUID manageHubUUID, String address, String managerName) {
 
         return Company.builder()
                 .name(name)
                 .type(type)
                 .manageHubUUID(manageHubUUID)
                 .address(address)
+                .managerName(managerName)
                 .build();
     }
 
-    public void update(String name, Type type, UUID manageHubUUID, String address) {
+    public void update(String name, Type type, UUID manageHubUUID, String address, String managerName) {
         this.name = name;
         this.type = type;
         this.manageHubUUID = manageHubUUID;
         this.address = address;
+        this.managerName = managerName;
     }
 }

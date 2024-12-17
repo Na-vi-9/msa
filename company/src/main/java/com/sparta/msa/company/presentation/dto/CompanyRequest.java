@@ -19,6 +19,7 @@ public class CompanyRequest implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private UUID hubUUID;
     private String address;
+    private String managerName;
 
-    public CompanyDto toDto() { return CompanyDto.of(this.name, this.type, this.hubUUID, this.address); }
+    public CompanyDto toDto() { return CompanyDto.of(this.name, this.type, this.hubUUID, this.address, this.managerName); }
 }

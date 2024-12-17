@@ -19,13 +19,15 @@ public class CompanyDto implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private UUID hubUUID;
     private String address;
+    private String managerName;
 
-    public static CompanyDto of(String name, Type type, UUID hubUUID, String address) {
+    public static CompanyDto of(String name, Type type, UUID hubUUID, String address, String managerName) {
         return CompanyDto.builder()
                 .name(name)
                 .type(type)
                 .hubUUID(hubUUID)
                 .address(address)
+                .managerName(managerName)
                 .build();
     }
 }

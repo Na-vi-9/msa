@@ -21,6 +21,7 @@ public class CompanyResponse implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private UUID manageHubUUID;
     private String companyAddress;
+    private String managerName;
 
     public static CompanyResponse fromCompany(Company company) {
         return CompanyResponse.builder()
@@ -29,6 +30,7 @@ public class CompanyResponse implements Serializable {
                 .companyType(company.getType())
                 .manageHubUUID(company.getManageHubUUID())
                 .companyAddress(company.getAddress())
+                .managerName(company.getManagerName())
                 .build();
     }
 }
