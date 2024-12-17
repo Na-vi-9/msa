@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -60,6 +61,20 @@ public class ProductService {
         Product product = productRepository.findByUuidAndIsDeletedFalse(productUUID)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
         product.delete(deletedBy);
+        productRepository.save(product);
+    }
+
+    @Transactional
+    public void updateProductQuantity(UUID productUUID, int quantityChange) {
+        Product product = productRepository.findByUuidAndIsDeletedFalse(productUUID)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        int updatedQuantity = product.getQuantity() + quantityChange;
+        if (updatedQuantity < 0) {
+            throw new CustomException(ErrorCode.PRODUCT_QUANTITY_NOT_ENOUGH);
+        }
+
+        product.setQuantity(updatedQuantity);
         productRepository.save(product);
     }
 }

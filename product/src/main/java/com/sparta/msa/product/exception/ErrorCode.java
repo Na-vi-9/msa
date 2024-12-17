@@ -13,6 +13,7 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "해당 요청에 대한 권한이 없습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP 메서드입니다."),
+    PRODUCT_QUANTITY_NOT_ENOUGH(HttpStatus.METHOD_NOT_ALLOWED, "현재 수량이 주문 수량에 비해 부족합니다."),
 
     // 주문 관련 예외
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다. (주문 ID: %s)"),

@@ -83,4 +83,10 @@ public class CompanyController {
         }
         return pageable;
     }
+
+    @GetMapping("/{companyUUID}/exists")
+    public boolean checkCompanyExists(@PathVariable UUID companyUUID) {
+        return companyService.existsByCompanyUUID(companyUUID);
+    }
+
 }

@@ -92,4 +92,13 @@ public class Product {
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = deletedBy;
     }
+
+    public void setQuantity(Integer quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("수량이 0보다 작을 수 없습니다.");
+        }
+        this.quantity = quantity;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }

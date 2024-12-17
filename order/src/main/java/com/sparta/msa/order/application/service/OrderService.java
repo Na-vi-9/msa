@@ -7,14 +7,11 @@ import com.sparta.msa.order.application.dto.OrderResponse;
 import com.sparta.msa.order.domain.model.Order;
 import com.sparta.msa.order.exception.CustomException;
 import com.sparta.msa.order.exception.ErrorCode;
-import com.sparta.msa.order.infrastructure.client.AiFeignClient;
+import com.sparta.msa.order.infrastructure.client.CompanyClient;
 import com.sparta.msa.order.infrastructure.client.ProductClient;
 import com.sparta.msa.order.infrastructure.client.ProductInfo;
-import com.sparta.msa.order.infrastructure.client.UserFeignClient;
 import com.sparta.msa.order.infrastructure.repository.OrderRepository;
 import com.sparta.msa.order.infrastructure.utils.AuthorizationUtils;
-import com.sparta.msa.order.presentation.request.GeminiClientRequestDto;
-import com.sparta.msa.order.presentation.response.AiMessageCreateResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,152 +26,88 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
-    private final UserFeignClient userFeignClient;
+    private final CompanyClient companyClient;
     private final AuthorizationUtils authorizationUtils;
-    private final AiFeignClient aiFeignClient;
-    private final SlackService slackService;
 
+    // 주문 생성 (COMMON)
     @Transactional
     public OrderResponse createOrder(OrderRequest request, String token) {
         String username = authorizationUtils.extractUsername(token);
 
-        // AI 서비스 호출
-        AiMessageCreateResponseDto aiResponse = generateFinalDeadline(request, token);
+        // 제품 정보 확인
+        ProductInfo product = productClient.getProductById(request.getProductUUID());
+        if (product == null || product.getQuantity() < request.getQuantity()) {
+            throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        // 회사 존재 여부 확인
+        validateCompanyExists(request.getSupplierCompanyUUID());
+        validateCompanyExists(request.getReceiverCompanyUUID());
+
+        // 상품 수량 감소
+        productClient.updateProductQuantity(request.getProductUUID(), -request.getQuantity(), token);
 
         // 주문 생성
+        UUID deliveryUUID = UUID.randomUUID();
         Order order = Order.createOrder(
                 request,
                 request.getSupplierCompanyUUID(),
                 request.getReceiverCompanyUUID(),
                 request.getProductUUID(),
-                UUID.randomUUID(),
-                username,
-                aiResponse.getContent()
+                deliveryUUID,
+                username
         );
 
         orderRepository.save(order);
-
-        // Slack 알림 전송
-        sendSlackNotification(aiResponse.getContent());
-
         return new OrderResponse(order.getUuid(), order.getDeliveryUUID());
     }
 
-
+    // 주문 목록 조회 (COMMON)
     @Transactional(readOnly = true)
     public Page<OrderListResponse> getOrders(String condition, Pageable pageable) {
         return orderRepository.findAllWithCondition(condition, null, pageable)
                 .map(OrderListResponse::new);
     }
 
+    // 주문 단건 조회 (COMMON)
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrderDetail(UUID orderUUID) {
-        Order order = findOrderById(orderUUID);
+        Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
         return new OrderDetailResponse(order);
     }
 
+    // 주문 수정 (MASTER, HUB_MANAGER)
     @Transactional
     public OrderDetailResponse updateOrder(UUID orderUUID, OrderRequest request, String token) {
-        validateUserRole(token, "MASTER", "HUB_MANAGER");
-
-        Order order = findOrderById(orderUUID);
+        authorizationUtils.validateRole(token, "MASTER", "HUB_MANAGER");
         String username = authorizationUtils.extractUsername(token);
 
-        order.updateOrder(
-                request.getSupplierCompanyUUID(),
-                request.getReceiverCompanyUUID(),
-                request.getProductUUID(),
-                request.getQuantity(),
-                request.getMemo(),
-                username
-        );
+        Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.updateOrder(request.getSupplierCompanyUUID(), request.getReceiverCompanyUUID(),
+                request.getProductUUID(), request.getQuantity(), request.getMemo(), username);
 
         return new OrderDetailResponse(order);
     }
 
+    // 주문 삭제 (MASTER, HUB_MANAGER)
     @Transactional
     public void deleteOrder(UUID orderUUID, String token) {
-        validateUserRole(token, "MASTER", "HUB_MANAGER");
-
-        Order order = findOrderById(orderUUID);
+        authorizationUtils.validateRole(token, "MASTER", "HUB_MANAGER");
         String username = authorizationUtils.extractUsername(token);
+
+        Order order = orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
+                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
         order.delete(username);
         orderRepository.save(order);
     }
 
-    @Transactional
-    public OrderDetailResponse cancelOrder(UUID orderUUID, String token) {
-        validateUserRole(token, "MASTER", "HUB_MANAGER");
-
-        Order order = findOrderById(orderUUID);
-
-        if (order.isCanceled()) {
-            throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
+    private void validateCompanyExists(UUID companyUUID) {
+        if (!companyClient.checkCompanyExists(companyUUID)) {
+            throw new CustomException(ErrorCode.COMPANY_NOT_FOUND);
         }
-
-        String username = authorizationUtils.extractUsername(token);
-        order.cancel(username);
-
-        return new OrderDetailResponse(order);
-    }
-
-    // 유틸리티 메서드
-    private ProductInfo validateProductAvailability(UUID productUUID) {
-        ProductInfo product = productClient.getProductById(productUUID);
-        if (product == null || product.getQuantity() <= 0) {
-            throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
-        return product;
-    }
-
-    private AiMessageCreateResponseDto generateFinalDeadline(OrderRequest request, String token) {
-        // 로그 추가
-        System.out.println("Generating final deadline with request: " + request);
-
-        String prompt = "상품: " + request.getProductUUID() +
-                ", 수량: " + request.getQuantity() +
-                ", 요청사항: " + request.getMemo() +
-                ", 발송지: " + request.getSupplierCompanyUUID() +
-                ", 도착지: " + request.getReceiverCompanyUUID();
-
-        String additionalMessage = ", 위 내용을 기반으로 몇월 며칠 오전/오후 몇시까지 최종 발송 시한을 도출해줘.";
-
-        // 로그 추가
-        System.out.println("Generated prompt: " + prompt);
-
-        GeminiClientRequestDto aiRequest = GeminiClientRequestDto.create(prompt, additionalMessage);
-
-        // 로그 추가
-        System.out.println("Generated AI Request: " + aiRequest);
-
-        String jwtToken = authorizationUtils.extractToken(token);
-        AiMessageCreateResponseDto response = aiFeignClient.createAiMessage(jwtToken, aiRequest);
-
-        // 로그 추가
-        System.out.println("AI Response: " + response);
-
-        return response;
-    }
-
-
-    private void sendSlackNotification(String finalDeadline) {
-        try {
-            String message = "최종 발송 시한: " + finalDeadline;
-            slackService.sendMessage(message);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Slack 알림 전송 실패", e);
-        }
-    }
-
-
-
-    private Order findOrderById(UUID orderUUID) {
-        return orderRepository.findByUuidAndIsDeletedFalse(orderUUID)
-                .orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
-    }
-
-    private void validateUserRole(String token, String... roles) {
-        authorizationUtils.validateRole(token, roles);
     }
 }
