@@ -30,7 +30,7 @@ https://www.notion.so/teamsparta/API-4ba9bac386d04650a27fa38f1a0fc2c2
 https://github.com/Na-vi-9/msa/wiki
 
 ### 📄 프로젝트 발표 자료
-
+[Spring 심화 2기_9조_2차.pdf](https://github.com/user-attachments/files/18182073/Spring.2._9._2.pdf)
 
 ---
 
